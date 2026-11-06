@@ -2,7 +2,7 @@
 
 A multi-agent research platform that answers complex questions from your own documents. A supervisor agent plans the work, specialized agents retrieve and analyze evidence, a verification agent checks every claim against its sources, and a report agent produces a structured, cited document. Progress streams to the browser in real time.
 
-The system is composed of a **FastAPI + LangGraph backend** (retrieval-augmented generation over PostgreSQL and pgvector) and a **React + TypeScript frontend**.
+The system is composed of a **FastAPI + LangGraph backend** (RAG over PostgreSQL and pgvector) and a **React + TypeScript frontend**.
 
 ---
 
@@ -64,37 +64,7 @@ The browser only communicates with the frontend container. nginx serves the stat
 
 Each question is executed by a LangGraph state machine. The supervisor can loop back for additional evidence when coverage is insufficient, within configurable iteration and token budgets.
 
-```mermaid
-%%{init: {'theme':'base','themeVariables':{'fontFamily':'Inter, Arial, sans-serif','primaryColor':'#efedff','primaryBorderColor':'#6251c9','primaryTextColor':'#1b1929','lineColor':'#6c6a76'}}}%%
-flowchart TD
-    start(["Question received"]):::start --> understand["Query understanding<br/>classify and analyze"]:::agent
-    understand -->|"ambiguous"| clarify(["Needs clarification<br/>user answers, run resumes"]):::wait
-    understand -->|"trivial"| direct(["Direct answer"]):::done
-    understand -->|"research needed"| plan["Supervisor: plan<br/>decompose into subtasks"]:::sup
-
-    plan --> workers
-
-    subgraph workers["Research workers (parallel)"]
-        direction LR
-        w1["Subtask 1<br/>retrieve evidence"]:::agent
-        w2["Subtask 2<br/>retrieve evidence"]:::agent
-        wn["Subtask N<br/>retrieve evidence"]:::agent
-    end
-
-    workers --> analyze["Analysis agent<br/>extract findings, gaps, contradictions"]:::agent
-    analyze --> verify["Verification agent<br/>check claims against sources"]:::agent
-    verify --> decide{"Supervisor: decide<br/>is the evidence sufficient?"}:::sup
-    decide -->|"no, budget remains"| plan2["Plan follow-up subtasks"]:::sup
-    plan2 --> workers
-    decide -->|"yes, or budget reached"| report["Report agent<br/>structured, cited report"]:::agent
-    report --> finish(["Completed"]):::done
-
-    classDef start fill:#1b1929,stroke:#1b1929,color:#ffffff
-    classDef agent fill:#efedff,stroke:#6251c9,color:#1b1929
-    classDef sup fill:#e2ddff,stroke:#51449d,color:#1b1929
-    classDef wait fill:#fdf3e1,stroke:#9a6516,color:#1b1929
-    classDef done fill:#e8f5ed,stroke:#3f8a63,color:#1b1929
-```
+![Research workflow](docs/images/research-workflow.svg)
 
 | Agent | Responsibility |
 |---|---|
@@ -111,33 +81,7 @@ flowchart TD
 
 The backend persists every workflow event and exposes them as a Server-Sent Events stream. The frontend derives the stage indicators and agent activity exclusively from these events and reconnects automatically using the `Last-Event-ID` header.
 
-```mermaid
-%%{init: {'theme':'base','themeVariables':{'fontFamily':'Inter, Arial, sans-serif','actorBkg':'#efedff','actorBorder':'#6251c9','actorTextColor':'#1b1929','signalColor':'#6c6a76','noteBkgColor':'#fdf3e1','noteBorderColor':'#9a6516'}}}%%
-sequenceDiagram
-    autonumber
-    participant UI as Frontend
-    participant API as FastAPI
-    participant BG as Background worker
-    participant DB as PostgreSQL
-
-    UI->>API: POST /research (query, options)
-    API->>DB: Create research record
-    API-->>UI: 202 Accepted (research id)
-    API->>BG: Start workflow
-    UI->>API: GET /research/{id}/events
-    loop Workflow progress
-        BG->>DB: Persist event
-        API->>DB: Read new events
-        API-->>UI: SSE event (plan.created, task.completed, ...)
-    end
-    Note over UI,API: Connection drops
-    UI->>API: GET /events with Last-Event-ID
-    API-->>UI: Only events after the last received id
-    BG->>DB: Save report, set status completed
-    API-->>UI: event: end
-    UI->>API: GET /research/{id}/report
-    API-->>UI: Structured report with sources
-```
+![Real-time progress sequence](docs/images/realtime-progress.svg)
 
 ---
 
@@ -145,7 +89,7 @@ sequenceDiagram
 
 | Layer | Technologies |
 |---|---|
-| Frontend | React 19, TypeScript (strict), Vite, Tailwind CSS 4, TanStack Query, React Router, Zustand, Zod, Recharts, Vitest, React Testing Library |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, Zustand, Zod, Recharts, Vitest, React Testing Library |
 | Backend | Python 3.12, FastAPI, LangGraph, LangChain, SQLAlchemy, Alembic, Pydantic |
 | Data | PostgreSQL with the pgvector extension |
 | Models | OpenAI chat and embedding models (configurable) |
@@ -160,7 +104,7 @@ sequenceDiagram
 agentic-research/
 ├── docker-compose.yml          # Integrated stack: database, API, web
 ├── docker-compose.dev.yml      # Frontend only, hot reload
-├── Dockerfile                  # Frontend image (build, then nginx)
+├── Dockerfile                  # Frontend image 
 ├── nginx.conf.template         # Static serving and /api reverse proxy
 ├── package.json
 ├── vite.config.ts
@@ -180,7 +124,7 @@ agentic-research/
 └── backend/
     ├── Dockerfile
     ├── docker-compose.yml      # Standalone backend stack
-    ├── .env.example            # Backend variables (OpenAI key goes here)
+    ├── .env.example            # Backend variables 
     ├── pyproject.toml
     ├── alembic/                # Database migrations
     ├── scripts/
@@ -391,9 +335,9 @@ Datasets are JSON files with a list of items (`id`, `question`, `relevant_docume
 
 ```bash
 npm install
-npm test              # unit and component tests (Vitest, React Testing Library)
-npm run typecheck     # strict TypeScript check
-npm run build         # production build
+npm test              # unit and component tests 
+npm run typecheck    
+npm run build         
 ```
 
 The frontend tests use mocked services. They never contact the backend or OpenAI.
@@ -413,18 +357,7 @@ The backend includes its own test suite in `backend/tests`. Refer to `backend/RE
 - The interface renders Markdown without raw HTML and never displays server stack traces or internal exception text.
 - Uploaded files are validated by extension, size, and actual content type before processing.
 
----
 
-## Documentation
-
-| Document | Content |
-|---|---|
-| [`docs/API_INTEGRATION.md`](docs/API_INTEGRATION.md) | Feature-to-endpoint mapping, SSE events, error handling, CORS |
-| [`docs/FRONTEND_ARCHITECTURE.md`](docs/FRONTEND_ARCHITECTURE.md) | Frontend layers, design decisions, accessibility, testing approach |
-| [`docs/BACKEND_GAPS.md`](docs/BACKEND_GAPS.md) | Features the current API does not expose and the proposed backend changes |
-| [`backend/docs/`](backend/docs) | Backend architecture, RAG, LangGraph workflow, data model, evaluation, MCP, and cost optimization |
-
----
 
 ## Troubleshooting
 
