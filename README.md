@@ -66,7 +66,7 @@ flowchart LR
 
     subgraph BE["Backend container (FastAPI)"]
         api["REST and SSE API"]:::be
-        graph["LangGraph<br/>multi-agent workflow"]:::be
+        lg["LangGraph<br/>multi-agent workflow"]:::be
         rag["RAG engine<br/>ingest, retrieve, rerank"]:::be
         evalh["Evaluation harness"]:::be
         mcp["MCP tool servers<br/>(optional transport)"]:::be
@@ -79,15 +79,15 @@ flowchart LR
     user -->|"HTTPS"| spa
     user -->|"fetch and SSE"| proxy
     proxy --> api
-    api --> graph
+    api --> lg
     api --> rag
     api --> evalh
-    graph --> rag
-    graph -.-> mcp
+    lg --> rag
+    lg -.-> mcp
     rag --> db
     api --> db
     api --> store
-    graph -->|"completions"| openai
+    lg -->|"completions"| openai
     rag -->|"embeddings"| openai
 
     classDef client fill:#1b1929,stroke:#1b1929,color:#ffffff
