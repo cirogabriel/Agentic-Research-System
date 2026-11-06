@@ -1,0 +1,52 @@
+{
+  "name": "andes-seismology-sample",
+  "description": "Dataset pequeño de ejemplo sobre los documentos de data/sample_docs. Cada ítem lista los archivos relevantes (juicio a nivel de documento).",
+  "items": [
+    {
+      "id": "q1",
+      "question": "¿Qué placas tectónicas intervienen en los terremotos de los Andes?",
+      "reference_answer": "La placa oceánica de Nazca subduce bajo la placa Sudamericana, y el contacto entre ambas genera los grandes terremotos andinos.",
+      "relevant_documents": ["andes_subduction.md"],
+      "expected_keywords": ["Nazca", "Sudamericana"],
+      "expected_aspects": ["placas", "subducción"]
+    },
+    {
+      "id": "q2",
+      "question": "¿Qué es la subducción de placa plana y dónde ocurre?",
+      "reference_answer": "Es un segmento donde la placa de Nazca se hunde con ángulo muy bajo, como en el centro de Perú y la región pampeana argentina, con poco volcanismo.",
+      "relevant_documents": ["andes_subduction.md"],
+      "expected_keywords": ["ángulo", "Perú"]
+    },
+    {
+      "id": "q3",
+      "question": "¿Cuál fue la magnitud del terremoto de Valdivia de 1960?",
+      "reference_answer": "El terremoto de Valdivia de 1960 tuvo una magnitud de momento de 9,5, el mayor registrado instrumentalmente.",
+      "relevant_documents": ["andes_earthquake_history.md"],
+      "expected_keywords": ["9,5"],
+      "expected_strategy": "hybrid"
+    },
+    {
+      "id": "q4",
+      "question": "¿Qué diferencia hay entre magnitud e intensidad de un sismo?",
+      "reference_answer": "La magnitud es una propiedad del evento y mide su energía; la intensidad describe los efectos observados en un lugar y depende de la distancia y el suelo.",
+      "relevant_documents": ["seismic_waves_and_magnitude.md"],
+      "expected_keywords": ["magnitud", "intensidad"],
+      "expected_strategy": "hybrid"
+    },
+    {
+      "id": "q5",
+      "question": "Compara los terremotos de interfaz con los corticales superficiales en los Andes",
+      "reference_answer": "Los de interfaz ocurren en el contacto entre placas y producen los mayores terremotos; los corticales ocurren en fallas de la placa Sudamericana y, aunque menores, pueden ser muy destructivos por su poca profundidad.",
+      "relevant_documents": ["andes_subduction.md", "plate_tectonics_basics.md"],
+      "expected_keywords": ["interfaz", "corticales"],
+      "expected_aspects": ["interfaz", "corticales"]
+    },
+    {
+      "id": "q6",
+      "question": "¿Cómo explica la teoría del rebote elástico los terremotos?",
+      "reference_answer": "La roca se deforma lentamente acumulando esfuerzo y, al superar la resistencia de la falla, se desliza de golpe liberando energía como ondas sísmicas.",
+      "relevant_documents": ["plate_tectonics_basics.md"],
+      "expected_keywords": ["rebote elástico", "esfuerzo"]
+    }
+  ]
+}

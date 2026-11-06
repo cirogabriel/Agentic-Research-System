@@ -1,0 +1,63 @@
+# docker compose up --build
+# Servicios: db (PostgreSQL + pgvector) y api (FastAPI). Perfil opcional "mcp": servidores MCP por HTTP.
+x-app: &app
+  build:
+    context: .
+    args:
+      WITH_RAGAS: ${WITH_RAGAS:-false}
+  env_file: [.env]
+  environment: &app-env
+    DATABASE_URL: postgresql+psycopg://ars:ars@db:5432/ars
+    STORAGE_DIR: /app/storage
+  volumes:
+    - storage:/app/storage
+    - hf_cache:/app/.cache
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ars
+      POSTGRES_PASSWORD: ars
+      POSTGRES_DB: ars
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ars -d ars"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    <<: *app
+    ports: ["8000:8000"]
+
+  # --- Servidores MCP como servicios HTTP (opcional): docker compose --profile mcp up ---
+  mcp-documents:
+    <<: *app
+    profiles: [mcp]
+    command: ["python", "-m", "ars.mcp_servers.document_server"]
+    environment: {<<: *app-env, MCP_TRANSPORT: streamable-http, MCP_PORT: "8001"}
+    ports: ["8001:8001"]
+  mcp-retrieval:
+    <<: *app
+    profiles: [mcp]
+    command: ["python", "-m", "ars.mcp_servers.retrieval_server"]
+    environment: {<<: *app-env, MCP_TRANSPORT: streamable-http, MCP_PORT: "8002"}
+    ports: ["8002:8002"]
+  mcp-evaluation:
+    <<: *app
+    profiles: [mcp]
+    command: ["python", "-m", "ars.mcp_servers.evaluation_server"]
+    environment: {<<: *app-env, MCP_TRANSPORT: streamable-http, MCP_PORT: "8003"}
+    ports: ["8003:8003"]
+
+volumes:
+  pgdata:
+  storage:
+  hf_cache:
