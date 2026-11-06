@@ -54,48 +54,7 @@ The system is composed of a **FastAPI + LangGraph backend** (retrieval-augmented
 
 ## System architecture
 
-```mermaid
-%%{init: {'theme':'base','themeVariables':{'fontFamily':'Inter, Arial, sans-serif','primaryColor':'#efedff','primaryBorderColor':'#6251c9','primaryTextColor':'#1b1929','lineColor':'#6c6a76','clusterBkg':'#faf9ff','clusterBorder':'#cfc7fb'}}}%%
-flowchart LR
-    user(["User<br/>Web browser"]):::client
-
-    subgraph FE["Frontend container (nginx)"]
-        spa["React single-page app<br/>static assets"]:::fe
-        proxy["Reverse proxy<br/>/api/*"]:::fe
-    end
-
-    subgraph BE["Backend container (FastAPI)"]
-        api["REST and SSE API"]:::be
-        lg["LangGraph<br/>multi-agent workflow"]:::be
-        rag["RAG engine<br/>ingest, retrieve, rerank"]:::be
-        evalh["Evaluation harness"]:::be
-        mcp["MCP tool servers<br/>(optional transport)"]:::be
-    end
-
-    db[("PostgreSQL<br/>with pgvector")]:::data
-    store[("File storage")]:::data
-    openai["OpenAI API<br/>LLM and embeddings"]:::ext
-
-    user -->|"HTTPS"| spa
-    user -->|"fetch and SSE"| proxy
-    proxy --> api
-    api --> lg
-    api --> rag
-    api --> evalh
-    lg --> rag
-    lg -.-> mcp
-    rag --> db
-    api --> db
-    api --> store
-    lg -->|"completions"| openai
-    rag -->|"embeddings"| openai
-
-    classDef client fill:#1b1929,stroke:#1b1929,color:#ffffff
-    classDef fe fill:#efedff,stroke:#6251c9,color:#1b1929
-    classDef be fill:#e8f5ed,stroke:#3f8a63,color:#1b1929
-    classDef data fill:#fdf3e1,stroke:#9a6516,color:#1b1929
-    classDef ext fill:#fbeceb,stroke:#b4423a,color:#1b1929
-```
+![System architecture](docs/images/architecture.svg)
 
 The browser only communicates with the frontend container. nginx serves the static application and forwards `/api` to the backend, which removes the need for CORS configuration in the default deployment. The OpenAI credentials exist exclusively in the backend environment.
 
