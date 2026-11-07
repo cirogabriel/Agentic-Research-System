@@ -23,7 +23,7 @@ export function HistoryPage() {
     <div className="page">
       <div className="page-header">
         <div><p className="eyebrow">Principal</p><h1>Historial</h1><p className="muted-copy">Todas las ejecuciones, de la más reciente a la más antigua.</p></div>
-        <Button className="new-research-button" onClick={() => navigate('/research/new')}><Plus /> Nueva investigación</Button>
+        
       </div>
       <div className="panel">
         <div className="toolbar">

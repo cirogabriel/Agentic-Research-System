@@ -40,7 +40,7 @@ export function DashboardPage() {
           <h1>Panel de investigación</h1>
           <p className="muted-copy">Resumen en tiempo real de tu sistema de investigación multiagente.</p>
         </div>
-        <Button className="new-research-button" onClick={() => navigate('/research/new')}><Plus data-icon="inline-start" /> Nueva investigación</Button>
+        
       </div>
 
       <div className="overview-cards">

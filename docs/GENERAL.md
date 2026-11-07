@@ -82,3 +82,7 @@ Verificado en el entorno de generación: `tsc` (strict) sin errores, **76 prueba
 
 ## Seguridad
 Sin claves de OpenAI en el cliente. API key opcional en `sessionStorage`. Markdown sin HTML crudo. Errores 5xx y excepciones del backend nunca se muestran. Los experimentos que consumen LLM exigen confirmación.
+
+
+
+

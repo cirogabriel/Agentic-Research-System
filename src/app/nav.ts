@@ -1,4 +1,4 @@
-import { BrainCircuit, Clock3, FileText, FolderOpen, Gauge, LayoutDashboard, MessageSquarePlus, Settings2, SlidersHorizontal, Zap, type LucideIcon } from 'lucide-react'
+import { BrainCircuit, Clock3, FileText, Gauge, LayoutDashboard, MessageSquarePlus, Settings2, SlidersHorizontal, Zap, type LucideIcon } from 'lucide-react'
 
 export interface NavItem { key: string; label: string; to: string; icon: LucideIcon; title: string }
 export interface NavGroup { label: string; items: NavItem[] }
@@ -11,7 +11,7 @@ export const NAV_GROUPS: NavGroup[] = [
   { label: 'Principal', items: [
     { key: 'dashboard', label: 'Dashboard', to: '/', icon: LayoutDashboard, title: 'Dashboard' },
     { key: 'new', label: 'Nueva investigación', to: '/research/new', icon: MessageSquarePlus, title: 'Nueva investigación' },
-    { key: 'mine', label: 'Mis investigaciones', to: '/research', icon: FolderOpen, title: 'Mis investigaciones' },
+
     { key: 'history', label: 'Historial', to: '/history', icon: Clock3, title: 'Historial' },
   ] },
   { label: 'Conocimiento', items: [{ key: 'documents', label: 'Documentos', to: '/documents', icon: FileText, title: 'Documentos' }] },
@@ -30,7 +30,7 @@ export const BRAND_ICON = BrainCircuit
 export function activeNavKey(pathname: string): string | null {
   if (pathname === '/') return 'dashboard'
   if (pathname === '/research/new') return 'new'
-  if (pathname === '/research' || pathname.startsWith('/research/')) return 'mine'
+  if (pathname === '/research' || pathname.startsWith('/research/')) return 'history'
   if (pathname.startsWith('/history')) return 'history'
   if (pathname.startsWith('/documents')) return 'documents'
   if (pathname.startsWith('/evaluations')) return 'evaluations'

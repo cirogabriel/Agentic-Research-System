@@ -1,11 +1,93 @@
 @import 'tailwindcss';
 
+/* ── Inter 18pt: fuente base de la interfaz ── */
+@font-face { font-family: 'Inter'; src: url('/fonts/Inter_18pt-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('/fonts/Inter_18pt-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('/fonts/Inter_18pt-Italic.ttf') format('truetype'); font-weight: 400; font-style: italic; font-display: swap; }
+
+/* ── Inter 24pt y 28pt ── */
+@font-face { font-family: 'Inter 24'; src: url('/fonts/Inter_24pt-Italic.ttf') format('truetype'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Inter 28'; src: url('/fonts/Inter_28pt-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter 28'; src: url('/fonts/Inter_28pt-Italic.ttf') format('truetype'); font-weight: 400; font-style: italic; font-display: swap; }
+
+/* ── Lato: texto del chat ── */
+@font-face { font-family: 'Lato'; src: url('/fonts/Lato-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Lato'; src: url('/fonts/Lato-Italic.ttf') format('truetype'); font-weight: 400; font-style: italic; font-display: swap; }
+
+/* ── Pacifico: decorativa, solo para pruebas ── */
+@font-face { font-family: 'Pacifico'; src: url('/fonts/Pacifico-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+
 @custom-variant dark (&:is(.dark *));
 
-:root { color-scheme: light; --background: #f7f7f9; --foreground: #171725; --card: #fff; --card-foreground: #171725; --popover: #fff; --popover-foreground: #171725; --primary: #191727; --primary-foreground: #fff; --secondary: #f0f0f4; --secondary-foreground: #292735; --muted: #f1f1f5; --muted-foreground: #858390; --accent: #eeecff; --accent-foreground: #51449d; --border: #e8e7ed; --input: #e2e1e8; --ring: #8d7cf4; --radius: .7rem; --sidebar: #f9f9fa; --sidebar-foreground: #34333d; --sidebar-border: #e8e7ed; --destructive: #b4423a; }
-@theme inline { --color-background: var(--background); --color-foreground: var(--foreground); --color-card: var(--card); --color-card-foreground: var(--card-foreground); --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground); --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground); --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground); --color-accent: var(--accent); --color-accent-foreground: var(--accent-foreground); --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring); --color-destructive: var(--destructive); --radius-sm: calc(var(--radius) * .6); --radius-md: calc(var(--radius) * .8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4); }
-* { @apply border-border outline-ring/50; box-sizing: border-box; }
-body { @apply bg-background text-foreground; margin: 0; font-family: Arial, Helvetica, sans-serif; }
+:root { 
+    color-scheme: light; 
+    --background: #f7f7f9; 
+    --foreground: #171725; 
+    --card: #fff; 
+    --card-foreground: #171725; 
+    --popover: #fff; 
+    --popover-foreground: #171725; 
+    --primary: #191727; 
+    --primary-foreground: #fff; 
+    --secondary: #f0f0f4; 
+    --secondary-foreground: #292735; 
+    --muted: #f1f1f5; 
+    --muted-foreground: #858390; 
+    --accent: #eeecff; 
+    --accent-foreground: #51449d; 
+    --border: #e8e7ed; 
+    --input: #e2e1e8; 
+    --ring: #8d7cf4; 
+    --radius: .7rem; 
+    --sidebar: #f9f9fa; 
+    --sidebar-foreground: #34333d; 
+    --sidebar-border: #e8e7ed; 
+    --destructive: #b4423a; 
+}
+
+@theme inline { 
+    --color-background: var(--background); 
+    --color-foreground: var(--foreground); 
+    --color-card: var(--card); 
+    --color-card-foreground: var(--card-foreground); 
+    --color-primary: var(--primary); 
+    --color-primary-foreground: var(--primary-foreground); 
+    --color-secondary: var(--secondary); 
+    --color-secondary-foreground: var(--secondary-foreground); 
+    --color-muted: var(--muted); 
+    --color-muted-foreground: var(--muted-foreground); 
+    --color-accent: var(--accent); 
+    --color-accent-foreground: var(--accent-foreground); 
+    --color-border: var(--border); 
+    --color-input: var(--input); 
+    --color-ring: var(--ring); 
+    --color-destructive: var(--destructive); 
+    --radius-sm: calc(var(--radius) * .6); 
+    --radius-md: calc(var(--radius) * .8); 
+    --radius-lg: var(--radius); 
+    --radius-xl: calc(var(--radius) * 1.4); 
+}
+
+* { 
+    @apply border-border outline-ring/50; 
+    box-sizing: border-box; 
+}
+
+/*
+body { 
+    @apply bg-background text-foreground; 
+    margin: 0; 
+    font-family: Arial, Helvetica, sans-serif; 
+}
+
+*/
+
+body { 
+    @apply bg-background text-foreground; 
+    margin: 0; 
+    font-family: 'Inter', system-ui, sans-serif; 
+}
+
 button, textarea { font: inherit; }
 .app-shell { display: flex; min-height: 100vh; background: #f7f7f9; }
 .app-sidebar { width: 235px; min-width: 235px; display: flex; flex-direction: column; border-right: 1px solid #e8e7ed; background: #fbfbfc; transition: width .2s ease, min-width .2s ease; }
