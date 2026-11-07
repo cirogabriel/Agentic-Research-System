@@ -1,4 +1,3 @@
-"""DTOs de la API REST (entradas y salidas)."""
 from __future__ import annotations
 
 import uuid
@@ -29,7 +28,10 @@ class ResearchOptions(BaseModel):
 class ResearchCreate(BaseModel):
     query: str = Field(min_length=5, max_length=4000)
     options: ResearchOptions = Field(default_factory=ResearchOptions)
-    parent_research_id: uuid.UUID | None = Field(None, description="Seguimiento de una investigación previa")
+    parent_research_id: uuid.UUID | None = Field(
+        None, 
+        description="Seguimiento de una investigación previa"
+    )
 
 
 class ClarificationIn(BaseModel):
@@ -109,7 +111,7 @@ class EventOut(ORMModel):
     created_at: datetime
 
 
-# ---- Documentos ---------------------------------------------------------------------------------
+# ---------------- Documentos --------------------------------------------------------------------------
 class DocumentOut(ORMModel):
     id: uuid.UUID
     filename: str
@@ -144,12 +146,15 @@ class ReindexOut(BaseModel):
     action: Literal["reindexing", "up_to_date"]
 
 
-# ---- Evaluación ---------------------------------------------------------------------------------
+# --------- Evaluación ----------------------------------------------------------------------
 class EvalItem(BaseModel):
     id: str
     question: str
     reference_answer: str | None = None
-    relevant_documents: list[str] = Field(default_factory=list, description="Nombres de archivo relevantes")
+    relevant_documents: list[str] = Field(
+        default_factory=list, 
+        description="Nombres de archivo relevantes"
+    )
     expected_keywords: list[str] = Field(default_factory=list)
     expected_strategy: str | None = None
     expected_aspects: list[str] = Field(default_factory=list)
