@@ -80,6 +80,7 @@ The system is composed of a **FastAPI + LangGraph backend** (RAG over PostgreSQL
 
 ![System architecture](docs/images/architecture.svg)
 
+
 The browser only communicates with the frontend container. nginx serves the static application and forwards `/api` to the backend, which removes the need for CORS configuration in the default deployment. The OpenAI credentials exist exclusively in the backend environment.
 
 ---

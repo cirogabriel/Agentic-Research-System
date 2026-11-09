@@ -10,8 +10,8 @@ export function NotFoundPage() {
       <p className="eyebrow">Error 404</p>
       <h1>Página no encontrada</h1>
       <p className="muted-copy">La dirección que buscas no existe.</p>
-      <Link to="/" className="link-accent">
-        Volver al dashboard
+      <Link to="/research/new" className="link-accent">
+        Volver al inicio
       </Link>
     </div>
   );

@@ -1,4 +1,8 @@
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  type RouteObject,
+} from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 
 
@@ -17,6 +21,10 @@ export const routes: RouteObject[] = [
     children: [
       {
         path: '/',
+        element: <Navigate to="/research/new" replace />,
+      },
+      {
+        path: '/dashboard',
         ...page(() => import('@/pages/DashboardPage'), 'DashboardPage'),
       },
       {

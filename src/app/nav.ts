@@ -29,7 +29,7 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         key: 'dashboard',
         label: 'Dashboard',
-        to: '/',
+        to: '/dashboard',
         icon: LayoutDashboard,
         title: 'Dashboard',
       },
@@ -93,7 +93,7 @@ export const NAV_GROUPS: NavGroup[] = [
 export const BRAND_ICON = BrainCircuit;
 
 export function activeNavKey(pathname: string): string | null {
-  if (pathname === '/') return 'dashboard';
+  if (pathname === '/dashboard') return 'dashboard';
   if (pathname === '/research/new') return 'new';
   if (pathname === '/research' || pathname.startsWith('/research/'))
     return 'history';

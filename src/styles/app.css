@@ -990,3 +990,137 @@ a {
   color: #1a1829; white-space: nowrap; 
 }
 */
+
+/* ------------ Responsive---------------- */
+
+/* Altura real del viewport móvil y scroll interno del contenido */
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.app-content,
+.content-scroll {
+  min-height: 0;
+}
+.content-scroll {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.page-grid,
+.placeholder-view {
+  min-height: calc(100vh - 69px);
+  min-height: calc(100dvh - 69px);
+}
+.topbar p {
+  min-width: 0;
+}
+
+/* Evita desbordes por contenido largo dentro del chat */
+.message-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.md img,
+.md video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Lista clave-valor de Configuración */
+.kv.kv-wide {
+  grid-template-columns: 220px 1fr;
+}
+
+.modal {
+  max-height: 90vh;
+  max-height: 90dvh;
+}
+
+@media (max-width: 820px) {
+  /* Menú móvil */
+  .mobile-menu {
+    width: 40px;
+    height: 40px;
+    margin: 0 8px 0 -8px;
+    border-radius: 8px;
+  }
+  .mobile-sidebar {
+    width: min(275px, 85vw);
+  }
+  .mobile-sidebar > .app-sidebar {
+    width: 100%;
+    min-width: 0;
+  }
+  .mobile-sidebar .nav-item {
+    padding-block: 12px;
+    font-size: 13px;
+  }
+
+  /* iOS Safari amplía la pantalla al enfocar campos menores a 16 px */
+  .input,
+  .select,
+  .textarea,
+  .composer textarea {
+    font-size: 16px;
+  }
+  .input,
+  .select {
+    height: 40px;
+  }
+
+  /* Áreas táctiles */
+  .icon-button {
+    width: 40px;
+    height: 40px;
+  }
+  .seg button {
+    padding: 9px 14px;
+  }
+
+  .kv.kv-wide {
+    grid-template-columns: 1fr;
+  }
+  .quick-card {
+    height: auto;
+    min-height: 250px;
+  }
+  .conversation-heading {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .toolbar .input,
+  .toolbar .select {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .search-box {
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .modal-backdrop {
+    padding: 12px;
+  }
+  .modal {
+    padding: 16px;
+  }
+  .toaster {
+    right: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+  }
+  .cell-title {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 520px) {
+  .page-grid,
+  .placeholder-view {
+    min-height: calc(100vh - 61px);
+    min-height: calc(100dvh - 61px);
+  }
+  .message {
+    gap: 8px;
+  }
+}

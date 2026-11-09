@@ -76,9 +76,32 @@ export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { pathname } = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
+    setMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    const onResize = () => {
+      if (window.matchMedia('(min-width: 821px)').matches) {
+        setMobileOpen(false);
+      }
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onResize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [mobileOpen]);
 
   return (
     <div className="app-shell">
@@ -89,6 +112,7 @@ export function AppLayout() {
             className="mobile-menu"
             onClick={() => setMobileOpen(true)}
             aria-label="Abrir menú"
+            aria-expanded={mobileOpen}
           >
             <Menu />
           </button>
@@ -97,7 +121,10 @@ export function AppLayout() {
         {mobileOpen && (
           <div
             className="mobile-sidebar-overlay"
-            onMouseDown={(e) => {
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú de navegación"
+            onClick={(e) => {
               if (e.target === e.currentTarget) setMobileOpen(false);
             }}
           >
