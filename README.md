@@ -4,11 +4,19 @@ A multi-agent research platform that answers complex questions from your own doc
 
 The system is composed of a **FastAPI + LangGraph backend** (RAG over PostgreSQL and pgvector) and a **React + TypeScript frontend**.
 
+<!--
+**Live demo:** [https://agentic-research-demo.example.com](https://agentic-research-demo.example.com)
+
+> The demo runs on shared infrastructure with limited usage. Do not upload confidential documents.
+-->
+
 ---
 
 ## Table of contents
 
+<!-- - [Live demo](#live-demo) -->
 - [Key features](#key-features)
+- [Screenshots](#screenshots)
 - [System architecture](#system-architecture)
 - [How a research run works](#how-a-research-run-works)
 - [Real-time progress](#real-time-progress)
@@ -53,6 +61,18 @@ The system is composed of a **FastAPI + LangGraph backend** (RAG over PostgreSQL
 - Live progress over Server-Sent Events, with automatic reconnection and no duplicated events.
 - Token and cost tracking per research run.
 - Evaluation harness with retrieval, generation, agent, and performance metrics, plus comparison of three system configurations.
+
+---
+
+## Screenshots
+
+**Starting a research run.** Ask a question, optionally limit the search to specific documents, and follow the stage tracker and agent activity in real time.
+
+![Research chat: initial view](docs/images/chatinicial.png)
+
+**Research result.** The final report includes an executive summary, verified findings, conclusions, and the sources used, each with the original passage.
+
+![Research chat: final report](docs/images/chatresultado.png)
 
 ---
 
