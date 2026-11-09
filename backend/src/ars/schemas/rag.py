@@ -1,4 +1,4 @@
-"""Tipos compartidos por la capa de recuperación (RAG), los agentes y los servidores MCP."""
+
 from __future__ import annotations
 
 import uuid
@@ -10,7 +10,9 @@ from pydantic import BaseModel, Field
 Strategy = Literal["vector", "keyword", "hybrid"]
 StrategyOrAuto = Literal["auto", "vector", "keyword", "hybrid"]
 Transform = Literal["none", "rewrite", "multi_query", "rag_fusion", "hyde"]
-TransformOrAuto = Literal["auto", "none", "rewrite", "multi_query", "rag_fusion", "hyde"]
+TransformOrAuto = Literal[
+    "auto", "none", "rewrite", "multi_query", "rag_fusion", "hyde"
+]
 
 
 class SearchFilters(BaseModel):

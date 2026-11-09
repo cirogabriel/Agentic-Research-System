@@ -1,16 +1,16 @@
-import { useEffect, useState, Fragment } from 'react'
-import { CheckCircle2, KeyRound, Lock, Plug, XCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ErrorState, LoadingState } from '@/components/common/States'
-import { OptionsForm } from '@/features/research/OptionsForm'
-import { validateDefaults } from '@/features/research/options'
-import { CONFIG_GROUPS, HIDDEN_KEYS, formatConfigValue } from '@/features/settings/catalog'
-import { useConfiguration, useHealth } from '@/features/settings/queries'
-import { apiConfig } from '@/services/api'
-import { useConnectionStore } from '@/stores/connectionStore'
-import { INITIAL_DEFAULTS, usePreferencesStore, type ResearchDefaults } from '@/stores/preferencesStore'
-import { notify } from '@/stores/toastStore'
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { OptionsForm } from '@/features/research/OptionsForm';
+import { validateDefaults } from '@/features/research/options';
+import { useConfiguration } from '@/features/settings/queries';
+import {
+  INITIAL_DEFAULTS,
+  usePreferencesStore,
+  type ResearchDefaults,
+} from '@/stores/preferencesStore';
+import { notify } from '@/stores/toastStore';
 
+/*
 function ConnectionPanel() {
   const { apiKey, setApiKey } = useConnectionStore()
   const [draft, setDraft] = useState(apiKey ?? '')
@@ -39,30 +39,66 @@ function ConnectionPanel() {
     </section>
   )
 }
+  */
 
 function DefaultsPanel() {
-  const stored = usePreferencesStore((s) => s.defaults)
-  const setDefaults = usePreferencesStore((s) => s.setDefaults)
-  const config = useConfiguration()
-  const [draft, setDraft] = useState<ResearchDefaults>(stored)
-  useEffect(() => setDraft(stored), [stored])
-  const errors = validateDefaults(draft)
-  const invalid = Object.keys(errors).length > 0
+  const stored = usePreferencesStore((s) => s.defaults);
+  const setDefaults = usePreferencesStore((s) => s.setDefaults);
+  const config = useConfiguration();
+  const [draft, setDraft] = useState<ResearchDefaults>(stored);
+  useEffect(() => setDraft(stored), [stored]);
+  const errors = validateDefaults(draft);
+  const invalid = Object.keys(errors).length > 0;
   return (
     <section className="panel" aria-labelledby="def-h">
-      <div className="row"><h2 id="def-h">Valores por defecto de nuevas investigaciones</h2><span className="edit-tag spacer">Modificable</span></div>
-      <p className="panel-sub">El backend permite ajustar estos parámetros por solicitud (campo <span className="mono">options</span>). Se guardan en este navegador y se envían al lanzar cada investigación; los campos vacíos usan el valor del backend.</p>
+      <div className="row">
+        <h2 id="def-h">Valores por defecto de nuevas investigaciones</h2>
+      </div>
+      <p className="panel-sub">
+        El backend permite ajustar estos parámetros por solicitud. Se guardan en
+        este navegador y se envían al lanzar cada investigación; los campos
+        vacíos usan el valor del backend.
+      </p>
       <div style={{ marginTop: 14 }}>
-        <OptionsForm value={draft} onChange={setDraft} idPrefix="settings" backend={{ max_iterations: config.data?.max_iterations, token_budget: config.data?.token_budget, retrieval_top_k: config.data?.retrieval_top_k }} />
+        <OptionsForm
+          value={draft}
+          onChange={setDraft}
+          idPrefix="settings"
+          backend={{
+            max_iterations: config.data?.max_iterations,
+            token_budget: config.data?.token_budget,
+            retrieval_top_k: config.data?.retrieval_top_k,
+          }}
+        />
       </div>
       <div className="row" style={{ marginTop: 14 }}>
-        <Button size="sm" disabled={invalid} onClick={() => { setDefaults(draft); notify.success('Valores por defecto guardados') }}>Guardar</Button>
-        <Button size="sm" variant="outline" onClick={() => { setDraft(INITIAL_DEFAULTS); setDefaults(INITIAL_DEFAULTS); notify.info('Valores restablecidos') }}>Restablecer</Button>
+        <Button
+          size="sm"
+          disabled={invalid}
+          onClick={() => {
+            setDefaults(draft);
+            notify.success('Valores por defecto guardados');
+          }}
+        >
+          Guardar
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setDraft(INITIAL_DEFAULTS);
+            setDefaults(INITIAL_DEFAULTS);
+            notify.info('Valores restablecidos');
+          }}
+        >
+          Restablecer
+        </Button>
       </div>
     </section>
-  )
+  );
 }
 
+/*
 function BackendConfigPanel() {
   const { data, isLoading, error, refetch } = useConfiguration()
   if (isLoading) return <section className="panel"><LoadingState rows={4} /></section>
@@ -92,11 +128,24 @@ function BackendConfigPanel() {
   )
 }
 
+*/
+
 export function SettingsPage() {
   return (
     <div className="page" style={{ maxWidth: 940 }}>
-      <div className="page-header"><div><p className="eyebrow">Sistema</p><h1>Configuración</h1><p className="muted-copy">Qué puedes cambiar desde aquí y qué solo se controla en el backend.</p></div></div>
-      <div className="stack"><ConnectionPanel /><DefaultsPanel /><BackendConfigPanel /></div>
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Sistema</p>
+          <h1>Configuración</h1>
+          <p className="muted-copy">
+            Ajusta los valores por defecto con los que se lanzan nuevas
+            investigaciones.
+          </p>
+        </div>
+      </div>
+      <div className="stack">
+        <DefaultsPanel />
+      </div>
     </div>
-  )
+  );
 }

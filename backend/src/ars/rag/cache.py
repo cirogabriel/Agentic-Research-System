@@ -1,4 +1,4 @@
-"""Caché en memoria con TTL y límite de tamaño (LRU simple), segura entre hilos."""
+
 from __future__ import annotations
 
 import threading
@@ -37,6 +37,6 @@ class TTLCache(Generic[V]):
                 self._data.popitem(last=False)
 
     def clear(self) -> None:
-        """Se llama al indexar/eliminar documentos: los resultados cacheados dejarían de ser válidos."""
+      
         with self._lock:
             self._data.clear()

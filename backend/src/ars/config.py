@@ -1,4 +1,4 @@
-"""Configuración centralizada. Todo se controla por variables de entorno (ver .env.example)."""
+
 from __future__ import annotations
 
 import re
@@ -10,7 +10,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     # --- Aplicación ---
     app_env: str = "development"
@@ -20,7 +22,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = []
     background_workers: int = 4
 
-    # --- Persistencia / archivos ---
+    # --- Persistencia archivos ---
     database_url: str = "postgresql+psycopg://ars:ars@localhost:5432/ars"
     db_pool_size: int = 10
     storage_dir: str = "./storage"
@@ -29,7 +31,7 @@ class Settings(BaseSettings):
     max_uncompressed_mb: int = 200
     checkpointing_enabled: bool = True
 
-    # --- OpenAI (un único modelo generativo para todos los agentes) ---
+    # --- OpenAI  ---
     openai_api_key: SecretStr = SecretStr("")
     openai_base_url: str | None = None
     llm_model: str = "gpt-4o-mini"
@@ -40,7 +42,7 @@ class Settings(BaseSettings):
     llm_price_input_per_mtok: float = 0.15
     llm_price_output_per_mtok: float = 0.60
 
-    # --- Embeddings (modelo distinto del generativo) ---
+    # --- Embeddings ---
     embedding_model: str = "text-embedding-3-small"
     embedding_dimensions: int = 1536
     embedding_batch_size: int = 64
@@ -54,7 +56,9 @@ class Settings(BaseSettings):
 
     # --- Recuperación ---
     retrieval_strategy: Literal["auto", "vector", "keyword", "hybrid"] = "auto"
-    query_transform: Literal["auto", "none", "rewrite", "multi_query", "rag_fusion", "hyde"] = "auto"
+    query_transform: Literal[
+        "auto", "none", "rewrite", "multi_query", "rag_fusion", "hyde"
+    ] = "auto"
     retrieval_top_k: int = 5
     rrf_k: int = 60
     multi_query_count: int = 3
@@ -89,7 +93,7 @@ class Settings(BaseSettings):
     max_parallel_workers: int = 4
     graph_recursion_limit: int = 60
 
-    # --- MCP (cuando se ejecutan como servicios HTTP) ---
+    # --- MCP ---
     mcp_transport: Literal["stdio", "streamable-http"] = "stdio"
     mcp_host: str = "0.0.0.0"
     mcp_port: int = 8001
@@ -101,14 +105,26 @@ class Settings(BaseSettings):
     @property
     def checkpoint_conninfo(self) -> str:
         """psycopg no entiende el sufijo '+psycopg' del URL de SQLAlchemy."""
-        return self.database_url.replace("postgresql+psycopg://", "postgresql://", 1)
+        return self.database_url.replace(
+            "postgresql+psycopg://", "postgresql://", 1
+        )
 
     def public_dict(self) -> dict[str, Any]:
         """Configuración segura para exponer en la API (sin secretos)."""
         data = self.model_dump()
-        data["openai_api_key"] = "configured" if self.openai_api_key.get_secret_value() else "missing"
-        data["api_key"] = "configured" if self.api_key and self.api_key.get_secret_value() else "disabled"
-        data["database_url"] = re.sub(r"://([^:/@]+):[^@]*@", r"://\1:***@", self.database_url)
+        data["openai_api_key"] = (
+            "configured"
+            if self.openai_api_key.get_secret_value()
+            else "missing"
+        )
+        data["api_key"] = (
+            "configured"
+            if self.api_key and self.api_key.get_secret_value()
+            else "disabled"
+        )
+        data["database_url"] = re.sub(
+            r"://([^:/@]+):[^@]*@", r"://\1:***@", self.database_url
+        )
         return data
 
 

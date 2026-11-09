@@ -15,7 +15,7 @@ class ConflictError(ARSError):
 
 
 class FileValidationError(ARSError):
-    """El archivo subido no es válido (tipo, tamaño, contenido malformado)."""
+    """El archivo subido no es válido."""
 
 
 class ExtractionError(ARSError):

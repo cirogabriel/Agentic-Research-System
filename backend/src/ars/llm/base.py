@@ -10,7 +10,6 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class StructuredLLM(Protocol):
-    """Contrato mínimo que usan agentes y servicios. Permite sustituir el LLM por un doble en las pruebas."""
 
     tracker: UsageTracker
 

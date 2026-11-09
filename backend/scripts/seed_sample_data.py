@@ -1,8 +1,3 @@
-"""Indexa los documentos de ejemplo y carga el dataset de evaluación.
-
-Uso (con la BD migrada y OPENAI_API_KEY configurada; genera embeddings reales, costo mínimo):
-    uv run python scripts/seed_sample_data.py
-"""
 from __future__ import annotations
 
 import sys
@@ -22,16 +17,24 @@ from ars.runtime import AppContainer  # noqa: E402
 def main() -> None:
     settings = get_settings()
     configure_logging(settings.log_level, False)
-    c = AppContainer.from_settings(settings, with_checkpointer=False, with_runner=False)
+    c = AppContainer.from_settings(
+        settings, with_checkpointer=False, with_runner=False
+    )
     try:
         for path in sorted((ROOT / "data" / "sample_docs").glob("*.md")):
             res = c.documents.ingest(path.name, path.read_bytes())
-            print(f"{path.name}: {res.action} ({res.document.status}, {res.document.num_chunks} chunks)")
-        ds = load_dataset_file(ROOT / "data" / "evaluation" / "sample_retrieval_dataset.json")
+            print(
+                f"{path.name}: {res.action} ({res.document.status}, {res.document.num_chunks} chunks)"
+            )
+        ds = load_dataset_file(
+            ROOT / "data" / "evaluation" / "sample_retrieval_dataset.json"
+        )
         with session_scope(c.session_factory) as s:
             repo = EvaluationRepository(s)
             if repo.get_dataset_by_name(ds["name"]) is None:
-                created = repo.create_dataset(ds["name"], ds["description"], ds["items"])
+                created = repo.create_dataset(
+                    ds["name"], ds["description"], ds["items"]
+                )
                 print(f"dataset '{ds['name']}' creado: {created.id}")
             else:
                 print(f"dataset '{ds['name']}' ya existía")

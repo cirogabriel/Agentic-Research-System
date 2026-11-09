@@ -1,5 +1,5 @@
 /** Eventos SSE reales emitidos por el backend (graph/nodes.py, services/research.py) y el formato del stream (api/routes/research.py). */
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const EVENT_TYPES = {
   started: 'research.started',
@@ -15,7 +15,7 @@ export const EVENT_TYPES = {
   reportGenerated: 'report.generated',
   completed: 'research.completed',
   failed: 'research.failed',
-} as const
+} as const;
 
 /** Cuerpo `data:` de cada evento: {type, message, payload, at}. El `id:` SSE es el id de fila (entero creciente). */
 export const eventDataSchema = z.object({
@@ -23,12 +23,12 @@ export const eventDataSchema = z.object({
   message: z.string(),
   payload: z.record(z.string(), z.unknown()).default({}),
   at: z.string(),
-})
+});
 
 export interface ResearchEvent {
-  id: number
-  type: string
-  message: string
-  payload: Record<string, unknown>
-  at: string
+  id: number;
+  type: string;
+  message: string;
+  payload: Record<string, unknown>;
+  at: string;
 }

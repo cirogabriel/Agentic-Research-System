@@ -1,4 +1,4 @@
-"""Ejecución de una investigación: construye dependencias por ejecución y lanza el grafo."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -40,12 +40,28 @@ def run_research(
         if settings.agent_tool_transport == "mcp":
             toolbox = McpToolbox(settings)
         else:
-            assert retrieval is not None, "Se requiere RetrievalService para el transporte directo"
+            assert retrieval is not None, (
+                "Se requiere RetrievalService para el transporte directo"
+            )
             toolbox = DirectToolbox(retrieval, llm, tracker)
-    graph = build_graph(GraphDeps(settings, llm, tracker, toolbox, reporter, options), checkpointer)
-    config = {"configurable": {"thread_id": thread_id}, "recursion_limit": settings.graph_recursion_limit, "max_concurrency": settings.max_parallel_workers}
+    graph = build_graph(
+        GraphDeps(settings, llm, tracker, toolbox, reporter, options),
+        checkpointer,
+    )
+    config = {
+        "configurable": {"thread_id": thread_id},
+        "recursion_limit": settings.graph_recursion_limit,
+        "max_concurrency": settings.max_parallel_workers,
+    }
     if resume:
-        return graph.invoke(None, config)  # continúa desde el último checkpoint
-    initial = {"research_id": research_id or thread_id, "query": query, "parent_context": parent_context, "skip_clarification": skip_clarification,
-               "messages": [HumanMessage(content=query, name="user")], "iteration": 0, "errors": []}
+        return graph.invoke(None, config)  
+    initial = {
+        "research_id": research_id or thread_id,
+        "query": query,
+        "parent_context": parent_context,
+        "skip_clarification": skip_clarification,
+        "messages": [HumanMessage(content=query, name="user")],
+        "iteration": 0,
+        "errors": [],
+    }
     return graph.invoke(initial, config)

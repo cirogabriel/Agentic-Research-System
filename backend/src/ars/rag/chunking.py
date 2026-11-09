@@ -1,9 +1,12 @@
-"""Estrategias de chunking configurables (tamaño, solapamiento, separadores, estrategia)."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from langchain_text_splitters import (
+    CharacterTextSplitter,
+    RecursiveCharacterTextSplitter,
+)
 
 from ars.config import Settings
 from ars.rag.loaders import Page
@@ -25,7 +28,12 @@ class ChunkingConfig:
 
     @classmethod
     def from_settings(cls, s: Settings) -> ChunkingConfig:
-        return cls(s.chunk_strategy, s.chunk_size, s.chunk_overlap, tuple(s.chunk_separators))
+        return cls(
+            s.chunk_strategy,
+            s.chunk_size,
+            s.chunk_overlap,
+            tuple(s.chunk_separators),
+        )
 
 
 @dataclass
@@ -41,22 +49,34 @@ class TextChunker:
         self.config = config
         if config.strategy == "recursive":
             self._splitter = RecursiveCharacterTextSplitter(
-                chunk_size=config.size, chunk_overlap=config.overlap, separators=list(config.separators), length_function=len
+                chunk_size=config.size,
+                chunk_overlap=config.overlap,
+                separators=list(config.separators),
+                length_function=len,
             )
         elif config.strategy == "fixed":
-            self._splitter = CharacterTextSplitter(separator="", chunk_size=config.size, chunk_overlap=config.overlap, length_function=len)
+            self._splitter = CharacterTextSplitter(
+                separator="",
+                chunk_size=config.size,
+                chunk_overlap=config.overlap,
+                length_function=len,
+            )
         elif config.strategy == "sentence":
             self._splitter = None
         else:
-            raise ValueError(f"Estrategia de chunking desconocida: {config.strategy}")
+            raise ValueError(
+                f"Estrategia de chunking desconocida: {config.strategy}"
+            )
 
     def split_text(self, text: str) -> list[str]:
         if self._splitter is not None:
-            return [c.strip() for c in self._splitter.split_text(text) if c.strip()]
+            return [
+                c.strip() for c in self._splitter.split_text(text) if c.strip()
+            ]
         return self._split_sentences(text)
 
     def _split_sentences(self, text: str) -> list[str]:
-        """Empaqueta oraciones completas hasta `size`; el solapamiento reutiliza las últimas oraciones."""
+       
         chunks: list[str] = []
         current: list[str] = []
         length = 0
@@ -78,9 +98,16 @@ class TextChunker:
         return chunks
 
     def split_pages(self, pages: list[Page]) -> list[Chunk]:
-        """Se divide página a página para conservar el número de página en cada chunk."""
+    
         out: list[Chunk] = []
         for page in pages:
             for piece in self.split_text(page.text):
-                out.append(Chunk(index=len(out), text=piece, page_number=page.number, token_estimate=approx_tokens(piece)))
+                out.append(
+                    Chunk(
+                        index=len(out),
+                        text=piece,
+                        page_number=page.number,
+                        token_estimate=approx_tokens(piece),
+                    )
+                )
         return out

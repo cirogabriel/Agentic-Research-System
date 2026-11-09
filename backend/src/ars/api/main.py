@@ -25,11 +25,11 @@ from ars.runtime import AppContainer
 log = logging.getLogger(__name__)
 
 _STATUS = {
-    NotFoundError: 404, 
-    ConflictError: 409, 
-    FileValidationError: 422, 
-    BudgetExceededError: 402, 
-    ConfigurationError: 500
+    NotFoundError: 404,
+    ConflictError: 409,
+    FileValidationError: 422,
+    BudgetExceededError: 402,
+    ConfigurationError: 500,
 }
 
 
@@ -41,13 +41,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.container = container
     try:
         container.verify_schema()
-    except Exception as exc:  
+    except Exception as exc:
         log.error("Verificación del esquema falló: %s", exc)
     interrupted = container.research.mark_interrupted_on_startup()
     if interrupted:
         log.warning(
-            "Investigaciones marcadas como interrumpidas tras el reinicio: %s", 
-            interrupted
+            "Investigaciones marcadas como interrumpidas tras el reinicio: %s",
+            interrupted,
         )
     yield
     container.close()
@@ -56,17 +56,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(
-        title="Agentic Research System", 
-        version=__version__, 
+        title="Agentic Research System",
+        version=__version__,
         lifespan=lifespan,
-        description="Plataforma backend de investigación multiagente.")
-    
+        description="Plataforma backend de investigación multiagente.",
+    )
+
     if settings.cors_origins:
         app.add_middleware(
-            CORSMiddleware, 
-            allow_origins=settings.cors_origins, 
-            allow_methods=["*"], 
-            allow_headers=["*"]
+            CORSMiddleware,
+            allow_origins=settings.cors_origins,
+            allow_methods=["*"],
+            allow_headers=["*"],
         )
 
     @app.exception_handler(ARSError)
@@ -74,10 +75,7 @@ def create_app() -> FastAPI:
         code = next((c for t, c in _STATUS.items() if isinstance(exc, t)), 500)
         if code >= 500:
             log.exception("Error interno")
-        return JSONResponse(
-            status_code=code, 
-            content={"detail": str(exc)}
-        )
+        return JSONResponse(status_code=code, content={"detail": str(exc)})
 
     for module in (research, documents, evaluations, system):
         app.include_router(module.router, prefix="/api/v1")

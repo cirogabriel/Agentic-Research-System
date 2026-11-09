@@ -1,4 +1,5 @@
-"""Dobles de prueba: ningún test consume la API de OpenAI ni necesita PostgreSQL (salvo los marcados 'integration')."""
+"""Dobles de prueba: ningún test consume la API de OpenAI ni necesita PostgreSQL """
+
 from __future__ import annotations
 
 import hashlib
@@ -9,19 +10,35 @@ from typing import Any
 
 from ars.exceptions import LLMError
 from ars.llm.budget import ExecutionRecord, UsageTracker
-from ars.schemas.rag import RetrievalRequest, RetrievalResult, RoutingDecision, ScoredChunk
+from ars.schemas.rag import (
+    RetrievalRequest,
+    RetrievalResult,
+    RoutingDecision,
+    ScoredChunk,
+)
 from ars.utils.text import content_tokens
 
 
 class FakeLLM:
-    """Responde por tipo de esquema. Cada valor puede ser: una instancia, un callable(user)->instancia o una lista (cola)."""
+   
 
-    def __init__(self, tracker: UsageTracker, responses: dict[type, Any] | None = None) -> None:
+    def __init__(
+        self, tracker: UsageTracker, responses: dict[type, Any] | None = None
+    ) -> None:
         self.tracker = tracker
         self.responses = responses or {}
         self.calls: list[tuple[str, str]] = []
 
-    def structured(self, schema: type, *, system: str, user: str, rec: ExecutionRecord | None = None, max_tokens: int | None = None, use_reserve: bool = False) -> Any:
+    def structured(
+        self,
+        schema: type,
+        *,
+        system: str,
+        user: str,
+        rec: ExecutionRecord | None = None,
+        max_tokens: int | None = None,
+        use_reserve: bool = False,
+    ) -> Any:
         self.tracker.check(use_reserve=use_reserve)
         self.calls.append((schema.__name__, user))
         self.tracker.charge(100, 50)
@@ -41,13 +58,25 @@ class FakeLLM:
 
 
 class FakeToolbox:
-    """Recuperación léxica sobre un corpus en memoria."""
+
 
     def __init__(self, corpus: dict[str, str]) -> None:
-        self.chunks = [ScoredChunk(chunk_id=uuid.uuid4(), document_id=uuid.uuid4(), document_name=name, chunk_index=0, content=text, score=0.0) for name, text in corpus.items()]
+        self.chunks = [
+            ScoredChunk(
+                chunk_id=uuid.uuid4(),
+                document_id=uuid.uuid4(),
+                document_name=name,
+                chunk_index=0,
+                content=text,
+                score=0.0,
+            )
+            for name, text in corpus.items()
+        ]
         self.requests: list[RetrievalRequest] = []
 
-    def retrieve(self, req: RetrievalRequest, rec: ExecutionRecord | None = None) -> RetrievalResult:
+    def retrieve(
+        self, req: RetrievalRequest, rec: ExecutionRecord | None = None
+    ) -> RetrievalResult:
         self.requests.append(req)
         q = set(content_tokens(req.query))
         scored = []
@@ -58,11 +87,20 @@ class FakeToolbox:
         scored.sort(key=lambda c: -c.score)
         if rec is not None:
             rec.tool_calls.append("hybrid_search")
-        return RetrievalResult(chunks=scored[: req.top_k], decision=RoutingDecision(strategy=("hybrid" if req.strategy == "auto" else req.strategy), transform="none", reason="fake"), queries=[req.query], latency_ms=1)
+        return RetrievalResult(
+            chunks=scored[: req.top_k],
+            decision=RoutingDecision(
+                strategy=("hybrid" if req.strategy == "auto" else req.strategy),
+                transform="none",
+                reason="fake",
+            ),
+            queries=[req.query],
+            latency_ms=1,
+        )
 
 
 class FakeEmbeddingClient:
-    """Embeddings deterministas: bolsa de palabras con hashing, normalizada (similar → vectores cercanos)."""
+  
 
     def __init__(self, dim: int) -> None:
         self.dim = dim

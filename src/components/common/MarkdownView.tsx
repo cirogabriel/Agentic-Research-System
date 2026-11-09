@@ -1,15 +1,17 @@
-import { memo, type ReactNode } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { memo, type ReactNode } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Props {
-  markdown: string
-  /** Se invoca al pulsar una cita [S#] enlazada con `linkifyCitations`. */
-  onCite?: (label: string) => void
+  markdown: string;
+  onCite?: (label: string) => void;
 }
 
-/** Renderiza Markdown (tablas, listas, código, enlaces). react-markdown no interpreta HTML crudo, por lo que el contenido del informe no puede inyectar scripts. */
-export const MarkdownView = memo(function MarkdownView({ markdown, onCite }: Props) {
+
+export const MarkdownView = memo(function MarkdownView({
+  markdown,
+  onCite,
+}: Props) {
   return (
     <div className="md">
       <ReactMarkdown
@@ -17,15 +19,30 @@ export const MarkdownView = memo(function MarkdownView({ markdown, onCite }: Pro
         components={{
           a: ({ href, children }): ReactNode => {
             if (href?.startsWith('#src-')) {
-              const label = href.slice(5)
-              return <a className="cite" href={href} onClick={(e) => { e.preventDefault(); onCite?.(label) }}>{children}</a>
+              const label = href.slice(5);
+              return (
+                <a
+                  className="cite"
+                  href={href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onCite?.(label);
+                  }}
+                >
+                  {children}
+                </a>
+              );
             }
-            return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
+            return (
+              <a href={href} target="_blank" rel="noopener noreferrer">
+                {children}
+              </a>
+            );
           },
         }}
       >
         {markdown}
       </ReactMarkdown>
     </div>
-  )
-})
+  );
+});

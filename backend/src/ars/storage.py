@@ -1,4 +1,4 @@
-"""Almacenamiento de archivos originales (necesarios para reindexar sin volver a subirlos)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,7 +10,9 @@ class FileStorage:
         self.base.mkdir(parents=True, exist_ok=True)
 
     def save(self, content_hash: str, extension: str, data: bytes) -> str:
-        rel = Path("documents") / content_hash[:2] / f"{content_hash}{extension}"
+        rel = (
+            Path("documents") / content_hash[:2] / f"{content_hash}{extension}"
+        )
         target = self.base / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         if not target.exists():

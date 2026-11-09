@@ -1,4 +1,3 @@
-"""Modelo relacional (SQLAlchemy 2.0). La migración 0001 debe reflejar exactamente este esquema."""
 from __future__ import annotations
 
 import uuid
@@ -29,7 +28,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ars.config import get_settings
 from ars.db.base import Base
 
-EMBED_DIM = get_settings().embedding_dimensions  # debe coincidir con la columna creada por la migración
+EMBED_DIM = get_settings().embedding_dimensions
 TS = DateTime(timezone=True)
 
 
@@ -41,7 +40,7 @@ def _created() -> Mapped[datetime]:
     return mapped_column(TS, server_default=func.now(), nullable=False)
 
 
-# ----------------------------------------------------------------------------- Documentos / RAG
+# -------Documentos / RAG
 class Document(Base):
     __tablename__ = "documents"
     __table_args__ = (
@@ -67,20 +66,28 @@ class Document(Base):
     index_signature: Mapped[str | None] = mapped_column(String(64))
     extra: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = _created()
-    updated_at: Mapped[datetime] = mapped_column(TS, server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        TS, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
     indexed_at: Mapped[datetime | None] = mapped_column(TS)
 
     chunks: Mapped[list[DocumentChunk]] = relationship(
-        back_populates="document", cascade="all, delete-orphan", passive_deletes=True
+        back_populates="document",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
 class DocumentChunk(Base):
     __tablename__ = "document_chunks"
     __table_args__ = (
-        UniqueConstraint("document_id", "chunk_index", name="uq_chunks_document_index"),
+        UniqueConstraint(
+            "document_id", "chunk_index", name="uq_chunks_document_index"
+        ),
         Index("ix_chunks_document_id", "document_id"),
-        Index("ix_chunks_search_vector", "search_vector", postgresql_using="gin"),
+        Index(
+            "ix_chunks_search_vector", "search_vector", postgresql_using="gin"
+        ),
         Index(
             "ix_chunks_embedding_hnsw",
             "embedding",
@@ -91,15 +98,18 @@ class DocumentChunk(Base):
     )
 
     id: Mapped[uuid.UUID] = _pk()
-    document_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("documents.id", ondelete="CASCADE"))
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("documents.id", ondelete="CASCADE")
+    )
     chunk_index: Mapped[int] = mapped_column(Integer)
     page_number: Mapped[int | None] = mapped_column(Integer)
     content: Mapped[str] = mapped_column(Text)
     char_count: Mapped[int] = mapped_column(Integer)
     token_estimate: Mapped[int] = mapped_column(Integer)
     embedding: Mapped[Any] = mapped_column(Vector(EMBED_DIM))
-    # Columna generada: PostgreSQL la mantiene sola. La configuración 'simple' es neutra en idiomas.
-    search_vector: Mapped[Any] = mapped_column(TSVECTOR, Computed("to_tsvector('simple', content)", persisted=True))
+    search_vector: Mapped[Any] = mapped_column(
+        TSVECTOR, Computed("to_tsvector('simple', content)", persisted=True)
+    )
     extra: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = _created()
 
@@ -116,21 +126,35 @@ class EmbeddingCache(Base):
     created_at: Mapped[datetime] = _created()
 
 
-# ----------------------------------------------------------------------------- Investigaciones
+# ----------------- Investigaciones
 finding_sources = Table(
     "finding_sources",
     Base.metadata,
-    Column("finding_id", Uuid, ForeignKey("research_findings.id", ondelete="CASCADE"), primary_key=True),
-    Column("source_id", Uuid, ForeignKey("sources.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "finding_id",
+        Uuid,
+        ForeignKey("research_findings.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "source_id",
+        Uuid,
+        ForeignKey("sources.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 
 class ResearchSession(Base):
     __tablename__ = "research_sessions"
-    __table_args__ = (Index("ix_research_status_created", "status", "created_at"),)
+    __table_args__ = (
+        Index("ix_research_status_created", "status", "created_at"),
+    )
 
     id: Mapped[uuid.UUID] = _pk()
-    parent_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="SET NULL"))
+    parent_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="SET NULL")
+    )
     query: Mapped[str] = mapped_column(Text)
     normalized: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     options: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
@@ -149,21 +173,50 @@ class ResearchSession(Base):
     started_at: Mapped[datetime | None] = mapped_column(TS)
     finished_at: Mapped[datetime | None] = mapped_column(TS)
 
-    tasks: Mapped[list[ResearchTask]] = relationship(back_populates="research", cascade="all, delete-orphan", passive_deletes=True)
-    executions: Mapped[list[AgentExecution]] = relationship(back_populates="research", cascade="all, delete-orphan", passive_deletes=True)
-    findings: Mapped[list[ResearchFinding]] = relationship(back_populates="research", cascade="all, delete-orphan", passive_deletes=True)
-    sources: Mapped[list[Source]] = relationship(back_populates="research", cascade="all, delete-orphan", passive_deletes=True)
-    report: Mapped[Report | None] = relationship(back_populates="research", cascade="all, delete-orphan", passive_deletes=True, uselist=False)
-    events: Mapped[list[ResearchEvent]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
-    messages: Mapped[list[ResearchMessage]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
+    tasks: Mapped[list[ResearchTask]] = relationship(
+        back_populates="research",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    executions: Mapped[list[AgentExecution]] = relationship(
+        back_populates="research",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    findings: Mapped[list[ResearchFinding]] = relationship(
+        back_populates="research",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    sources: Mapped[list[Source]] = relationship(
+        back_populates="research",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    report: Mapped[Report | None] = relationship(
+        back_populates="research",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        uselist=False,
+    )
+    events: Mapped[list[ResearchEvent]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
+    messages: Mapped[list[ResearchMessage]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class ResearchTask(Base):
     __tablename__ = "research_tasks"
-    __table_args__ = (UniqueConstraint("research_id", "key", name="uq_tasks_research_key"),)
+    __table_args__ = (
+        UniqueConstraint("research_id", "key", name="uq_tasks_research_key"),
+    )
 
     id: Mapped[uuid.UUID] = _pk()
-    research_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True)
+    research_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True
+    )
     key: Mapped[str] = mapped_column(String(32))
     iteration: Mapped[int] = mapped_column(Integer, default=1)
     title: Mapped[str] = mapped_column(String(256))
@@ -183,10 +236,14 @@ class ResearchTask(Base):
 
 class AgentExecution(Base):
     __tablename__ = "agent_executions"
-    __table_args__ = (Index("ix_executions_research_agent", "research_id", "agent"),)
+    __table_args__ = (
+        Index("ix_executions_research_agent", "research_id", "agent"),
+    )
 
     id: Mapped[uuid.UUID] = _pk()
-    research_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"))
+    research_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE")
+    )
     agent: Mapped[str] = mapped_column(String(32))
     task_key: Mapped[str | None] = mapped_column(String(32))
     iteration: Mapped[int] = mapped_column(Integer, default=0)
@@ -199,21 +256,31 @@ class AgentExecution(Base):
     error: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = _created()
 
-    research: Mapped[ResearchSession] = relationship(back_populates="executions")
+    research: Mapped[ResearchSession] = relationship(
+        back_populates="executions"
+    )
 
 
 class Source(Base):
-    """Evidencia citada en una investigación. Guarda el nombre del documento como instantánea para que
-    el informe siga siendo legible si el documento se elimina después (document_id pasa a NULL)."""
 
     __tablename__ = "sources"
-    __table_args__ = (UniqueConstraint("research_id", "label", name="uq_sources_research_label"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "research_id", "label", name="uq_sources_research_label"
+        ),
+    )
 
     id: Mapped[uuid.UUID] = _pk()
-    research_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True)
+    research_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True
+    )
     label: Mapped[str] = mapped_column(String(16))
-    chunk_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("document_chunks.id", ondelete="SET NULL"))
-    document_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("documents.id", ondelete="SET NULL"))
+    chunk_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("document_chunks.id", ondelete="SET NULL")
+    )
+    document_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("documents.id", ondelete="SET NULL")
+    )
     document_name: Mapped[str] = mapped_column(String(255))
     page_number: Mapped[int | None] = mapped_column(Integer)
     snippet: Mapped[str] = mapped_column(Text)
@@ -226,7 +293,9 @@ class ResearchFinding(Base):
     __tablename__ = "research_findings"
 
     id: Mapped[uuid.UUID] = _pk()
-    research_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True)
+    research_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True
+    )
     position: Mapped[int] = mapped_column(Integer)
     statement: Mapped[str] = mapped_column(Text)
     kind: Mapped[str] = mapped_column(String(16))  # fact | interpretation
@@ -243,7 +312,9 @@ class Report(Base):
 
     id: Mapped[uuid.UUID] = _pk()
     research_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), unique=True
+        Uuid,
+        ForeignKey("research_sessions.id", ondelete="CASCADE"),
+        unique=True,
     )
     title: Mapped[str] = mapped_column(String(512))
     markdown: Mapped[str] = mapped_column(Text)
@@ -255,12 +326,15 @@ class Report(Base):
 
 
 class ResearchEvent(Base):
-    """Eventos de progreso; el endpoint SSE los lee en orden de id."""
 
     __tablename__ = "research_events"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    research_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True)
+    id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=True
+    )
+    research_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True
+    )
     event_type: Mapped[str] = mapped_column(String(48))
     message: Mapped[str] = mapped_column(Text)
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
@@ -268,18 +342,19 @@ class ResearchEvent(Base):
 
 
 class ResearchMessage(Base):
-    """Historial conversacional de una investigación (consulta, aclaraciones, resumen del informe)."""
 
     __tablename__ = "research_messages"
 
     id: Mapped[uuid.UUID] = _pk()
-    research_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True)
+    research_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("research_sessions.id", ondelete="CASCADE"), index=True
+    )
     role: Mapped[str] = mapped_column(String(16))
     content: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = _created()
 
 
-# ----------------------------------------------------------------------------- Evaluación
+# ----------------------------- Evaluación
 class EvaluationDataset(Base):
     __tablename__ = "evaluation_datasets"
     __table_args__ = (UniqueConstraint("name", name="uq_eval_datasets_name"),)
@@ -290,7 +365,9 @@ class EvaluationDataset(Base):
     items: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     created_at: Mapped[datetime] = _created()
 
-    experiments: Mapped[list[EvaluationExperiment]] = relationship(back_populates="dataset")
+    experiments: Mapped[list[EvaluationExperiment]] = relationship(
+        back_populates="dataset"
+    )
 
 
 class EvaluationExperiment(Base):
@@ -298,7 +375,11 @@ class EvaluationExperiment(Base):
 
     id: Mapped[uuid.UUID] = _pk()
     name: Mapped[str] = mapped_column(String(128))
-    dataset_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("evaluation_datasets.id", ondelete="RESTRICT"), index=True)
+    dataset_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("evaluation_datasets.id", ondelete="RESTRICT"),
+        index=True,
+    )
     mode: Mapped[str] = mapped_column(String(16))
     config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     status: Mapped[str] = mapped_column(String(16), default="pending")
@@ -307,18 +388,30 @@ class EvaluationExperiment(Base):
     created_at: Mapped[datetime] = _created()
     finished_at: Mapped[datetime | None] = mapped_column(TS)
 
-    dataset: Mapped[EvaluationDataset] = relationship(back_populates="experiments")
+    dataset: Mapped[EvaluationDataset] = relationship(
+        back_populates="experiments"
+    )
     results: Mapped[list[EvaluationResult]] = relationship(
-        back_populates="experiment", cascade="all, delete-orphan", passive_deletes=True
+        back_populates="experiment",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
 class EvaluationResult(Base):
     __tablename__ = "evaluation_results"
-    __table_args__ = (UniqueConstraint("experiment_id", "item_id", name="uq_eval_results_item"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "experiment_id", "item_id", name="uq_eval_results_item"
+        ),
+    )
 
     id: Mapped[uuid.UUID] = _pk()
-    experiment_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("evaluation_experiments.id", ondelete="CASCADE"), index=True)
+    experiment_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("evaluation_experiments.id", ondelete="CASCADE"),
+        index=True,
+    )
     item_id: Mapped[str] = mapped_column(String(128))
     question: Mapped[str] = mapped_column(Text)
     answer: Mapped[str | None] = mapped_column(Text)
@@ -332,4 +425,6 @@ class EvaluationResult(Base):
     error: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = _created()
 
-    experiment: Mapped[EvaluationExperiment] = relationship(back_populates="results")
+    experiment: Mapped[EvaluationExperiment] = relationship(
+        back_populates="results"
+    )

@@ -30,22 +30,26 @@ The system is composed of a **FastAPI + LangGraph backend** (RAG over PostgreSQL
 ## Key features
 
 **Research**
+
 - Conversational research with follow-up questions that reuse the context of the previous report.
 - Multi-agent pipeline: query understanding, planning, parallel retrieval, analysis, verification, and report generation.
 - Clarification requests when a question is ambiguous, and resumable runs after interruptions.
 - Final reports with an executive summary, verified findings, conclusions, limitations, and source references with the original passage.
 
 **Knowledge base**
+
 - Upload PDF, DOCX, TXT, Markdown, and HTML documents with drag and drop.
 - Asynchronous indexing with visible status (`processing`, `indexed`, `failed`), reindexing, and deletion.
 - Optional restriction of a research run to specific documents.
 
 **Retrieval**
+
 - Vector, keyword, and hybrid search with automatic strategy selection.
 - Query transformations: rewrite, multi-query, RAG Fusion, and HyDE.
 - Cross-encoder reranking.
 
 **Observability and quality**
+
 - Live progress over Server-Sent Events, with automatic reconnection and no duplicated events.
 - Token and cost tracking per research run.
 - Evaluation harness with retrieval, generation, agent, and performance metrics, plus comparison of three system configurations.
@@ -66,14 +70,14 @@ Each question is executed by a LangGraph state machine. The supervisor can loop 
 
 ![Research workflow](docs/images/research-workflow.svg)
 
-| Agent | Responsibility |
-|---|---|
-| Query processor | Classifies the question, detects ambiguity, and chooses the retrieval strategy |
-| Supervisor | Plans subtasks and decides whether to continue or finalize |
-| Research workers | Run retrieval for each subtask and collect evidence |
-| Analysis | Produces findings, identifies gaps and contradictions |
-| Verification | Scores each finding against its supporting evidence |
-| Report | Writes the final report in Markdown with references |
+| Agent            | Responsibility                                                                 |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Query processor  | Classifies the question, detects ambiguity, and chooses the retrieval strategy |
+| Supervisor       | Plans subtasks and decides whether to continue or finalize                     |
+| Research workers | Run retrieval for each subtask and collect evidence                            |
+| Analysis         | Produces findings, identifies gaps and contradictions                          |
+| Verification     | Scores each finding against its supporting evidence                            |
+| Report           | Writes the final report in Markdown with references                            |
 
 ---
 
@@ -87,14 +91,14 @@ The backend persists every workflow event and exposes them as a Server-Sent Even
 
 ## Technology stack
 
-| Layer | Technologies |
-|---|---|
+| Layer    | Technologies                                                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, Zustand, Zod, Recharts, Vitest, React Testing Library |
-| Backend | Python 3.12, FastAPI, LangGraph, LangChain, SQLAlchemy, Alembic, Pydantic |
-| Data | PostgreSQL with the pgvector extension |
-| Models | OpenAI chat and embedding models (configurable) |
-| Tooling | Model Context Protocol (MCP) servers, optional RAGAS evaluation |
-| Delivery | Docker, Docker Compose, nginx |
+| Backend  | Python 3.12, FastAPI, LangGraph, LangChain, SQLAlchemy, Alembic, Pydantic                                                       |
+| Data     | PostgreSQL with the pgvector extension                                                                                          |
+| Models   | OpenAI chat and embedding models (configurable)                                                                                 |
+| Tooling  | Model Context Protocol (MCP) servers, optional RAGAS evaluation                                                                 |
+| Delivery | Docker, Docker Compose, nginx                                                                                                   |
 
 ---
 
@@ -104,7 +108,7 @@ The backend persists every workflow event and exposes them as a Server-Sent Even
 agentic-research/
 ├── docker-compose.yml          # Integrated stack: database, API, web
 ├── docker-compose.dev.yml      # Frontend only, hot reload
-├── Dockerfile                  # Frontend image 
+├── Dockerfile                  # Frontend image
 ├── nginx.conf.template         # Static serving and /api reverse proxy
 ├── package.json
 ├── vite.config.ts
@@ -124,7 +128,7 @@ agentic-research/
 └── backend/
     ├── Dockerfile
     ├── docker-compose.yml      # Standalone backend stack
-    ├── .env.example            # Backend variables 
+    ├── .env.example            # Backend variables
     ├── pyproject.toml
     ├── alembic/                # Database migrations
     ├── scripts/
@@ -247,29 +251,29 @@ DEV_PROXY_TARGET=http://localhost:8000
 
 ### Backend (`backend/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `OPENAI_API_KEY` | OpenAI credential. Required. | none |
-| `API_KEY` | When set, every route except `/health` requires the `X-API-Key` header | disabled |
-| `LLM_MODEL` | Generative model used by all agents | `gpt-4o-mini` |
-| `EMBEDDING_MODEL` | Embedding model | `text-embedding-3-small` |
-| `RETRIEVAL_STRATEGY` | `auto`, `vector`, `keyword`, or `hybrid` | `auto` |
-| `RETRIEVAL_TOP_K` | Results per search | `5` |
-| `MAX_ITERATIONS` | Maximum supervisor loops per run | `3` |
-| `TOKEN_BUDGET` | Token budget per run | `60000` |
-| `MAX_UPLOAD_MB` | Maximum upload size | `25` |
-| `CORS_ORIGINS` | JSON list of allowed origins (only needed without the proxy) | `[]` |
-| `DATABASE_URL` | PostgreSQL connection string | set by Compose |
+| Variable             | Description                                                            | Default                  |
+| -------------------- | ---------------------------------------------------------------------- | ------------------------ |
+| `OPENAI_API_KEY`     | OpenAI credential. Required.                                           | none                     |
+| `API_KEY`            | When set, every route except `/health` requires the `X-API-Key` header | disabled                 |
+| `LLM_MODEL`          | Generative model used by all agents                                    | `gpt-4o-mini`            |
+| `EMBEDDING_MODEL`    | Embedding model                                                        | `text-embedding-3-small` |
+| `RETRIEVAL_STRATEGY` | `auto`, `vector`, `keyword`, or `hybrid`                               | `auto`                   |
+| `RETRIEVAL_TOP_K`    | Results per search                                                     | `5`                      |
+| `MAX_ITERATIONS`     | Maximum supervisor loops per run                                       | `3`                      |
+| `TOKEN_BUDGET`       | Token budget per run                                                   | `60000`                  |
+| `MAX_UPLOAD_MB`      | Maximum upload size                                                    | `25`                     |
+| `CORS_ORIGINS`       | JSON list of allowed origins (only needed without the proxy)           | `[]`                     |
+| `DATABASE_URL`       | PostgreSQL connection string                                           | set by Compose           |
 
 The complete list is documented in `backend/.env.example`. Changing any of these values requires restarting the backend.
 
 ### Frontend (`.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `VITE_API_BASE_URL` | API base URL including `/api/v1` | `http://localhost:8000/api/v1` in development, `/api/v1` in the Docker image |
-| `VITE_API_TIMEOUT_MS` | Timeout for regular requests (streaming is not limited) | `30000` |
-| `DEV_PROXY_TARGET` | Development only: proxy `/api` to this backend URL | unset |
+| Variable              | Description                                             | Default                                                                      |
+| --------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`   | API base URL including `/api/v1`                        | `http://localhost:8000/api/v1` in development, `/api/v1` in the Docker image |
+| `VITE_API_TIMEOUT_MS` | Timeout for regular requests (streaming is not limited) | `30000`                                                                      |
+| `DEV_PROXY_TARGET`    | Development only: proxy `/api` to this backend URL      | unset                                                                        |
 
 The frontend never holds OpenAI credentials. If the backend requires an API key, enter it under **Settings, Connection**. It is stored in `sessionStorage` for the current tab only.
 
@@ -277,18 +281,18 @@ The frontend never holds OpenAI credentials. If the backend requires an API key,
 
 ## Using the application
 
-| Section | Purpose |
-|---|---|
-| Dashboard | Totals, in-progress runs, indexed documents, token usage, and recent research |
-| New research | Ask a question; optionally limit the search to specific documents and tune per-run parameters |
-| My research | Conversations grouped with their follow-up questions |
-| History | Chronological list with status filters, durations, tokens, cost, and summaries |
-| Research view | Chat, live stage tracking, agent activity, and the final report |
-| Documents | Upload, filter, inspect metadata, reindex, and delete |
-| Evaluations | Create datasets, run experiments, and inspect metrics |
-| Experiments | Compare system configurations side by side |
-| Settings | Connection status, API key, default per-run parameters, and read-only backend configuration |
-| Models and usage | Configured models and token consumption |
+| Section          | Purpose                                                                                       |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| Dashboard        | Totals, in-progress runs, indexed documents, token usage, and recent research                 |
+| New research     | Ask a question; optionally limit the search to specific documents and tune per-run parameters |
+| My research      | Conversations grouped with their follow-up questions                                          |
+| History          | Chronological list with status filters, durations, tokens, cost, and summaries                |
+| Research view    | Chat, live stage tracking, agent activity, and the final report                               |
+| Documents        | Upload, filter, inspect metadata, reindex, and delete                                         |
+| Evaluations      | Create datasets, run experiments, and inspect metrics                                         |
+| Experiments      | Compare system configurations side by side                                                    |
+| Settings         | Connection status, API key, default per-run parameters, and read-only backend configuration   |
+| Models and usage | Configured models and token consumption                                                       |
 
 ---
 
@@ -296,12 +300,12 @@ The frontend never holds OpenAI credentials. If the backend requires an API key,
 
 All routes are served under `/api/v1`. Interactive documentation is available at `/docs` on the backend.
 
-| Area | Endpoints |
-|---|---|
-| Research | `POST /research`, `GET /research`, `GET /research/{id}`, `GET /research/{id}/status`, `GET /research/{id}/report`, `GET /research/{id}/events` (SSE), `POST /research/{id}/clarifications`, `POST /research/{id}/resume` |
-| Documents | `POST /documents/upload`, `GET /documents`, `GET /documents/{id}`, `DELETE /documents/{id}`, `POST /documents/{id}/reindex` |
-| Evaluations | `GET` and `POST /evaluations/datasets`, `GET` and `POST /evaluations`, `GET /evaluations/{id}`, `GET /evaluations/experiments/compare` |
-| System | `GET /health`, `GET /configuration` |
+| Area        | Endpoints                                                                                                                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Research    | `POST /research`, `GET /research`, `GET /research/{id}`, `GET /research/{id}/status`, `GET /research/{id}/report`, `GET /research/{id}/events` (SSE), `POST /research/{id}/clarifications`, `POST /research/{id}/resume` |
+| Documents   | `POST /documents/upload`, `GET /documents`, `GET /documents/{id}`, `DELETE /documents/{id}`, `POST /documents/{id}/reindex`                                                                                              |
+| Evaluations | `GET` and `POST /evaluations/datasets`, `GET` and `POST /evaluations`, `GET /evaluations/{id}`, `GET /evaluations/experiments/compare`                                                                                   |
+| System      | `GET /health`, `GET /configuration`                                                                                                                                                                                      |
 
 A detailed mapping of every frontend feature to its endpoint, including the SSE event catalog, is available in [`docs/API_INTEGRATION.md`](docs/API_INTEGRATION.md).
 
@@ -318,12 +322,12 @@ The evaluation harness measures four groups of metrics:
 
 Experiments run in one of four modes and can be compared against each other.
 
-| Mode | Configuration |
-|---|---|
-| `retrieval` | Retrieval only, no generation |
-| `A` | Conventional RAG |
-| `B` | RAG with supervisor and agents |
-| `C` | Multi-agent RAG with verification |
+| Mode        | Configuration                     |
+| ----------- | --------------------------------- |
+| `retrieval` | Retrieval only, no generation     |
+| `A`         | Conventional RAG                  |
+| `B`         | RAG with supervisor and agents    |
+| `C`         | Multi-agent RAG with verification |
 
 Datasets are JSON files with a list of items (`id`, `question`, `relevant_documents`, and optionally `reference_answer`, `expected_keywords`, `expected_aspects`). Sample data is provided in `backend/data/`.
 
@@ -335,9 +339,9 @@ Datasets are JSON files with a list of items (`id`, `question`, `relevant_docume
 
 ```bash
 npm install
-npm test              # unit and component tests 
-npm run typecheck    
-npm run build         
+npm test              # unit and component tests
+npm run typecheck
+npm run build
 ```
 
 The frontend tests use mocked services. They never contact the backend or OpenAI.
@@ -356,8 +360,6 @@ The backend includes its own test suite in `backend/tests`. Refer to `backend/RE
 - Use `TOKEN_BUDGET` and `MAX_ITERATIONS` to cap spending per run.
 - The interface renders Markdown without raw HTML and never displays server stack traces or internal exception text.
 - Uploaded files are validated by extension, size, and actual content type before processing.
-
-
 
 ## Troubleshooting
 

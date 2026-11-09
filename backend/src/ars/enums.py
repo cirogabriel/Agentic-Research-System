@@ -11,7 +11,12 @@ class ResearchStatus(StrEnum):
 
     @classmethod
     def terminal(cls) -> set[str]:
-        return {cls.COMPLETED, cls.FAILED, cls.NEEDS_CLARIFICATION, cls.INTERRUPTED}
+        return {
+            cls.COMPLETED,
+            cls.FAILED,
+            cls.NEEDS_CLARIFICATION,
+            cls.INTERRUPTED,
+        }
 
 
 class DocumentStatus(StrEnum):
@@ -21,17 +26,19 @@ class DocumentStatus(StrEnum):
 
 
 class Support(StrEnum):
-    """Resultado de la verificación de un hallazgo contra sus fuentes."""
+   
 
     SUPPORTED = "supported"
     PARTIAL = "partially_supported"
     UNSUPPORTED = "unsupported"
     CONTRADICTED = "contradicted"
-    UNVERIFIED = "unverified"  # no se pudo verificar (p. ej. presupuesto agotado)
+    UNVERIFIED = (
+        "unverified" 
+    )
 
 
 class ExperimentMode(StrEnum):
-    RETRIEVAL = "retrieval"  # solo métricas de recuperación
+    RETRIEVAL = "retrieval"  
     A = "A"  # RAG convencional sin agentes
     B = "B"  # Supervisor + agentes, secuencial, sin ciclo de verificación
     C = "C"  # Supervisor + agentes, paralelo y con ciclo de verificación

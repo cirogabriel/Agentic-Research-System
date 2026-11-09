@@ -1,3 +1,3 @@
-export * from './client'
-export * from './errors'
-export * from './eventStream'
+export * from './client';
+export * from './errors';
+export * from './eventStream';

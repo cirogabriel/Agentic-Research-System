@@ -1,9 +1,4 @@
-"""Defensa en profundidad contra prompt injection indirecta (contenido de documentos).
 
-Ninguna técnica es infalible; combinamos: (1) delimitadores y aviso explícito en el prompt del sistema,
-(2) neutralización de etiquetas que imiten nuestra estructura, (3) detección de patrones sospechosos
-para registrar/etiquetar, y (4) herramientas limitadas por agente (los agentes no ejecutan código).
-"""
 from __future__ import annotations
 
 import re
@@ -23,7 +18,8 @@ _INJECTION_PATTERNS = [
 ]
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in _INJECTION_PATTERNS]
 _STRUCTURAL_TAGS = re.compile(
-    r"</?\s*(evidence|findings|plan|question|previous_findings|context|instructions|task)\b[^>]*>", re.IGNORECASE
+    r"</?\s*(evidence|findings|plan|question|previous_findings|context|instructions|task)\b[^>]*>",
+    re.IGNORECASE,
 )
 
 UNTRUSTED_NOTICE = (
@@ -34,16 +30,22 @@ UNTRUSTED_NOTICE = (
 
 
 def detect_injection(text: str) -> list[str]:
-    """Devuelve los patrones sospechosos encontrados (lista vacía si no hay)."""
+
     return [p.pattern for p in _COMPILED if p.search(text)]
 
 
 def neutralize(text: str) -> str:
-    """Rompe las etiquetas estructurales que un documento podría usar para escapar del delimitador."""
-    return _STRUCTURAL_TAGS.sub(lambda m: m.group(0).replace("<", "‹").replace(">", "›"), text)
+    
+    return _STRUCTURAL_TAGS.sub(
+        lambda m: m.group(0).replace("<", "‹").replace(">", "›"), text
+    )
 
 
-def wrap_untrusted(label: str, text: str, *, source: str = "", max_chars: int = 1500) -> str:
+def wrap_untrusted(
+    label: str, text: str, *, source: str = "", max_chars: int = 1500
+) -> str:
     body = neutralize(truncate_chars(text, max_chars))
-    attrs = f' id="{label}"' + (f' source="{neutralize(source)}"' if source else "")
+    attrs = f' id="{label}"' + (
+        f' source="{neutralize(source)}"' if source else ""
+    )
     return f"<evidence{attrs}>\n{body}\n</evidence>"

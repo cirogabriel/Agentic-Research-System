@@ -1,4 +1,4 @@
-"""Query Understanding: normaliza la consulta con un LLM solo cuando hace falta (estrategia económica)."""
+
 from __future__ import annotations
 
 import re
@@ -10,10 +10,18 @@ from ars.llm.budget import ExecutionRecord
 from ars.schemas.query import QueryAnalysis, QueryUnderstanding, ResearchType
 from ars.utils.text import content_tokens, detect_language, normalize_whitespace
 
-_COMPARE = re.compile(r"\b(compar\w*|versus|vs\.?|diferenci\w*|differences?|contrast\w*)\b", re.I)
-_EXPLAIN = re.compile(r"\b(por qu[eé]|porque|causas?|why|how|c[oó]mo|explica\w*|explain)\b", re.I)
-_DEFINE = re.compile(r"\b(qu[eé] es|qu[eé] son|what is|what are|define|defin\w*)\b", re.I)
-_VAGUE_START = re.compile(r"^(eso|esto|aquello|it|that|this|and|y|pero|but)\b", re.I)
+_COMPARE = re.compile(
+    r"\b(compar\w*|versus|vs\.?|diferenci\w*|differences?|contrast\w*)\b", re.I
+)
+_EXPLAIN = re.compile(
+    r"\b(por qu[eé]|porque|causas?|why|how|c[oó]mo|explica\w*|explain)\b", re.I
+)
+_DEFINE = re.compile(
+    r"\b(qu[eé] es|qu[eé] son|what is|what are|define|defin\w*)\b", re.I
+)
+_VAGUE_START = re.compile(
+    r"^(eso|esto|aquello|it|that|this|and|y|pero|but)\b", re.I
+)
 
 SYSTEM = """You are the Query Understanding component of a research system.
 Analyse the user's request and return a structured representation.
@@ -37,7 +45,9 @@ class QueryProcessor:
         words = q.split()
         if not 6 <= len(words) <= 120 or len(q) > 1200:
             return False
-        if not (q[0].isupper() or q[0] in "¿¡"):  # sin mayúscula inicial suele indicar texto sin revisar
+        if not (
+            q[0].isupper() or q[0] in "¿¡"
+        ):  # sin mayúscula inicial suele indicar texto sin revisar
             return False
         if not re.search(r"[?.!]$", q):
             return False
@@ -57,24 +67,65 @@ class QueryProcessor:
             rtype = "explanatory"
         elif _DEFINE.search(q):
             rtype = "descriptive"
-        # Entidades: palabras capitalizadas que no inician la oración, más cifras de 3-4 dígitos.
-        entities = list(dict.fromkeys(re.findall(r"(?<![.¿?¡!]\s)(?<!^)\b[A-ZÁÉÍÓÚÑ][\wáéíóúñ]+\b|\b\d{3,4}\b", q)))
+     
+        entities = list(
+            dict.fromkeys(
+                re.findall(
+                    r"(?<![.¿?¡!]\s)(?<!^)\b[A-ZÁÉÍÓÚÑ][\wáéíóúñ]+\b|\b\d{3,4}\b",
+                    q,
+                )
+            )
+        )
         return QueryAnalysis(
-            normalized_query=q, topic=" ".join(aspects[:3]) or q[:60], objective=q, research_type=rtype, entities=entities[:8],
-            constraints=[], key_aspects=aspects, is_ambiguous=False, clarification_questions=[], needs_research=True,
-            language=detect_language(q), used_llm=False,
+            normalized_query=q,
+            topic=" ".join(aspects[:3]) or q[:60],
+            objective=q,
+            research_type=rtype,
+            entities=entities[:8],
+            constraints=[],
+            key_aspects=aspects,
+            is_ambiguous=False,
+            clarification_questions=[],
+            needs_research=True,
+            language=detect_language(q),
+            used_llm=False,
         )
 
-    def process(self, query: str, *, parent_context: str = "", rec: ExecutionRecord | None = None) -> QueryAnalysis:
+    def process(
+        self,
+        query: str,
+        *,
+        parent_context: str = "",
+        rec: ExecutionRecord | None = None,
+    ) -> QueryAnalysis:
         mode = self.settings.query_processor_mode
-        use_llm = mode == "always" or (mode == "auto" and (bool(parent_context) or not self.looks_clear(query)))
+        use_llm = mode == "always" or (
+            mode == "auto"
+            and (bool(parent_context) or not self.looks_clear(query))
+        )
         if not use_llm:
             return self.heuristic(query)
-        user = f"<previous_research>\n{parent_context}\n</previous_research>\n\n" if parent_context else ""
-        out = self.llm.structured(QueryUnderstanding, system=SYSTEM, user=f"{user}User request:\n{query}", rec=rec, max_tokens=500)
-        analysis = QueryAnalysis(**out.model_dump(), language=detect_language(query), used_llm=True)
-        analysis.normalized_query = normalize_whitespace(analysis.normalized_query) or normalize_whitespace(query)
+        user = (
+            f"<previous_research>\n{parent_context}\n</previous_research>\n\n"
+            if parent_context
+            else ""
+        )
+        out = self.llm.structured(
+            QueryUnderstanding,
+            system=SYSTEM,
+            user=f"{user}User request:\n{query}",
+            rec=rec,
+            max_tokens=500,
+        )
+        analysis = QueryAnalysis(
+            **out.model_dump(), language=detect_language(query), used_llm=True
+        )
+        analysis.normalized_query = normalize_whitespace(
+            analysis.normalized_query
+        ) or normalize_whitespace(query)
         analysis.clarification_questions = analysis.clarification_questions[:3]
         if analysis.is_ambiguous and not analysis.clarification_questions:
-            analysis.is_ambiguous = False  # sin preguntas concretas no podemos pedir aclaración
+            analysis.is_ambiguous = (
+                False  
+            )
         return analysis

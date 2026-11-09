@@ -37,7 +37,10 @@
       "id": "q5",
       "question": "Compara los terremotos de interfaz con los corticales superficiales en los Andes",
       "reference_answer": "Los de interfaz ocurren en el contacto entre placas y producen los mayores terremotos; los corticales ocurren en fallas de la placa Sudamericana y, aunque menores, pueden ser muy destructivos por su poca profundidad.",
-      "relevant_documents": ["andes_subduction.md", "plate_tectonics_basics.md"],
+      "relevant_documents": [
+        "andes_subduction.md",
+        "plate_tectonics_basics.md"
+      ],
       "expected_keywords": ["interfaz", "corticales"],
       "expected_aspects": ["interfaz", "corticales"]
     },

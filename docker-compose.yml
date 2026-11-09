@@ -1,17 +1,13 @@
-# Frontend + backend integrados.
-#   1) cp backend/.env.example backend/.env   y completa OPENAI_API_KEY (la clave vive SOLO aquí, en el backend)
-#   2) docker compose up --build
-#   3) Abre http://localhost:8080
-# El navegador solo habla con nginx (:8080); nginx reenvía /api al backend, por lo que no hace falta configurar CORS.
 services:
   db:
     image: pgvector/pgvector:pg17
-    environment: { POSTGRES_USER: ars, POSTGRES_PASSWORD: ars, POSTGRES_DB: ars }
+    environment:
+      { POSTGRES_USER: ars, POSTGRES_PASSWORD: ars, POSTGRES_DB: ars }
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./backend/scripts/init_db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ars -d ars"]
+      test: ['CMD-SHELL', 'pg_isready -U ars -d ars']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -19,7 +15,7 @@ services:
   api:
     build:
       context: ./backend
-      args: { WITH_RAGAS: "${WITH_RAGAS:-false}" }
+      args: { WITH_RAGAS: '${WITH_RAGAS:-false}' }
     env_file: [./backend/.env]
     environment:
       DATABASE_URL: postgresql+psycopg://ars:ars@db:5432/ars
@@ -29,9 +25,7 @@ services:
       - hf_cache:/app/.cache
     depends_on:
       db: { condition: service_healthy }
-    expose: ["8000"]
-    # Descomenta para acceder también directamente (Swagger en http://localhost:8000/docs):
-    # ports: ["8000:8000"]
+    expose: ['8000']
 
   web:
     build:
@@ -40,7 +34,7 @@ services:
       args: { VITE_API_BASE_URL: /api/v1 }
     environment:
       BACKEND_URL: http://api:8000
-    ports: ["8080:80"]
+    ports: ['8080:80']
     depends_on: [api]
 
 volumes:

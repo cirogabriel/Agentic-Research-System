@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 WORKDIR /app
 
-# Capa de dependencias (se cachea mientras no cambie pyproject.toml).
+
 ARG WITH_RAGAS=false
 COPY pyproject.toml uv.lock* README.md ./
 RUN mkdir -p src/ars && touch src/ars/__init__.py \

@@ -14,4 +14,8 @@ def load_dataset_file(path: str | Path) -> dict[str, Any]:
     ids = [i["id"] for i in items]
     if len(ids) != len(set(ids)):
         raise ValueError("Los ids de los ítems del dataset deben ser únicos")
-    return {"name": raw["name"], "description": raw.get("description"), "items": items}
+    return {
+        "name": raw["name"],
+        "description": raw.get("description"),
+        "items": items,
+    }

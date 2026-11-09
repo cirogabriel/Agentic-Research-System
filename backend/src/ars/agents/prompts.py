@@ -1,4 +1,3 @@
-"""Prompts de sistema. Las instrucciones viven aquí; el contenido recuperado viaja siempre dentro de <evidence>."""
 from ars.security import UNTRUSTED_NOTICE
 
 PLANNER = """You are the Supervisor of a research team. Break the user's research question into the MINIMUM number of

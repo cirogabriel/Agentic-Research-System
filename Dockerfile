@@ -1,12 +1,9 @@
-# syntax=docker/dockerfile:1
-# Targets: dev (servidor Vite con recarga) · production (nginx + estáticos + proxy /api → backend)
-
 FROM node:22-alpine AS base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# ---- Desarrollo local: docker build --target dev ----
+# ---- Desarrollo local
 FROM base AS dev
 COPY . .
 EXPOSE 5173
@@ -14,8 +11,6 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 # ---- Compilación ----
 FROM base AS build
-# Por defecto la app llama a /api/v1 en su mismo origen (nginx lo reenvía al backend → sin CORS).
-# Para apuntar directamente a otro origen: --build-arg VITE_API_BASE_URL=https://api.ejemplo.com/api/v1 (requiere CORS_ORIGINS en el backend).
 ARG VITE_API_BASE_URL=/api/v1
 ARG VITE_API_TIMEOUT_MS=30000
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL VITE_API_TIMEOUT_MS=$VITE_API_TIMEOUT_MS

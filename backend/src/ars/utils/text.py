@@ -1,4 +1,4 @@
-"""Utilidades de texto puras (sin I/O): tokenización, hashing, truncado."""
+
 from __future__ import annotations
 
 import hashlib
@@ -10,17 +10,23 @@ _SENTENCE = re.compile(r"(?<=[.!?¿¡])\s+")
 
 
 def fold(text: str) -> str:
-    """Minúsculas sin acentos (para comparar tokens de forma tolerante)."""
+
     nfkd = unicodedata.normalize("NFKD", text)
     return "".join(c for c in nfkd if not unicodedata.combining(c)).lower()
 
 
-STOPWORDS_ES = {fold(w) for w in """a al algo ante con contra cual cuando de del desde donde e el ella ellos en entre era es esa ese eso esta este
+STOPWORDS_ES = {
+    fold(w)
+    for w in """a al algo ante con contra cual cuando de del desde donde e el ella ellos en entre era es esa ese eso esta este
 esto fue ha han hay la las le les lo los me mi muy ni no nos o para pero por porque que quien se si sin sobre son su sus tambien tan te tiene
-un una uno unas unos y ya como cada cuales segun sido ser estan""".split()}
-STOPWORDS_EN = {fold(w) for w in """a about after all also an and any are as at be because been but by can could did do does for from had has
+un una uno unas unos y ya como cada cuales segun sido ser estan""".split()
+}
+STOPWORDS_EN = {
+    fold(w)
+    for w in """a about after all also an and any are as at be because been but by can could did do does for from had has
 have how if in into is it its may more most no not of on or other our out over should so some such than that the their them then there these
-they this to was were what when where which while who why will with would you your""".split()}
+they this to was were what when where which while who why will with would you your""".split()
+}
 STOPWORDS = STOPWORDS_ES | STOPWORDS_EN
 
 
@@ -29,12 +35,16 @@ def tokenize(text: str) -> list[str]:
 
 
 def content_tokens(text: str, min_len: int = 3) -> list[str]:
-    """Tokens con contenido semántico: sin stopwords y sin palabras muy cortas (los números sí se conservan)."""
-    return [t for t in tokenize(text) if (len(t) >= min_len or t.isdigit()) and t not in STOPWORDS]
+
+    return [
+        t
+        for t in tokenize(text)
+        if (len(t) >= min_len or t.isdigit()) and t not in STOPWORDS
+    ]
 
 
 def fts_terms(query: str, limit: int = 24) -> list[str]:
-    """Términos para to_tsquery('simple'): solo caracteres de palabra, por lo que no hay inyección de sintaxis."""
+
     seen: dict[str, None] = {}
     for tok in _WORD.findall(query.lower()):
         if len(tok) > 1 and fold(tok) not in STOPWORDS:
@@ -47,12 +57,14 @@ def split_sentences(text: str) -> list[str]:
 
 
 def approx_tokens(text: str) -> int:
-    """Estimación barata (~4 caracteres por token) para presupuestos; no sustituye a tiktoken."""
+
     return max(1, len(text) // 4) if text else 0
 
 
 def truncate_chars(text: str, limit: int) -> str:
-    return text if len(text) <= limit else text[: max(0, limit - 1)].rstrip() + "…"
+    return (
+        text if len(text) <= limit else text[: max(0, limit - 1)].rstrip() + "…"
+    )
 
 
 def normalize_whitespace(text: str) -> str:
@@ -60,11 +72,13 @@ def normalize_whitespace(text: str) -> str:
 
 
 def sha256_hex(data: bytes | str) -> str:
-    return hashlib.sha256(data.encode("utf-8") if isinstance(data, str) else data).hexdigest()
+    return hashlib.sha256(
+        data.encode("utf-8") if isinstance(data, str) else data
+    ).hexdigest()
 
 
 def detect_language(text: str) -> str:
-    """Heurística es/en por stopwords; suficiente para elegir el idioma de las etiquetas del informe."""
+   
     toks = set(tokenize(text))
     es, en = len(toks & STOPWORDS_ES), len(toks & STOPWORDS_EN)
     if es == en == 0:

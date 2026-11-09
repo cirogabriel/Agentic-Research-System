@@ -1,4 +1,4 @@
-"""Estado compartido tipado del grafo. Los reducers definen cómo se combinan las escrituras de nodos paralelos."""
+
 from __future__ import annotations
 
 import operator
@@ -16,14 +16,17 @@ class ResearchState(TypedDict, total=False):
     query: str
     parent_context: str
     skip_clarification: bool
-    # historial de mensajes (solo notas compactas entre agentes; se filtra, recorta y poda)
     messages: Annotated[list[AnyMessage], add_messages]
     # trabajo
     analysis: dict[str, Any]
     iteration: int
     pending: list[dict[str, Any]]
-    tasks: Annotated[list[dict[str, Any]], operator.add]  # todas las subtareas (se acumulan entre iteraciones)
-    task_results: Annotated[list[dict[str, Any]], operator.add]  # llegan en paralelo desde los workers
+    tasks: Annotated[
+        list[dict[str, Any]], operator.add
+    ]  # todas las subtareas 
+    task_results: Annotated[
+        list[dict[str, Any]], operator.add
+    ]  # llegan en paralelo desde los workers
     sources: Annotated[dict[str, dict[str, Any]], merge_sources]
     findings: list[dict[str, Any]]
     analysis_notes: dict[str, Any]
@@ -41,7 +44,7 @@ class ResearchState(TypedDict, total=False):
 
 
 class WorkerInput(TypedDict):
-    """Carga que recibe cada worker mediante Send (no es el estado global)."""
+ 
 
     tasks: list[dict[str, Any]]
     iteration: int

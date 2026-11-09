@@ -29,8 +29,7 @@ class ResearchCreate(BaseModel):
     query: str = Field(min_length=5, max_length=4000)
     options: ResearchOptions = Field(default_factory=ResearchOptions)
     parent_research_id: uuid.UUID | None = Field(
-        None, 
-        description="Seguimiento de una investigación previa"
+        None, description="Seguimiento de una investigación previa"
     )
 
 
@@ -152,8 +151,7 @@ class EvalItem(BaseModel):
     question: str
     reference_answer: str | None = None
     relevant_documents: list[str] = Field(
-        default_factory=list, 
-        description="Nombres de archivo relevantes"
+        default_factory=list, description="Nombres de archivo relevantes"
     )
     expected_keywords: list[str] = Field(default_factory=list)
     expected_strategy: str | None = None

@@ -13,23 +13,42 @@ from ars.mcp_servers.schemas import ChunkOut
 
 
 def bootstrap() -> tuple[AppContainer, str]:
-    """Los servidores MCP son procesos independientes con su propio contenedor (sin checkpointer ni pool de trabajos)."""
+
     settings = get_settings()
-    configure_logging(settings.log_level, settings.log_json)  # a stderr: stdout pertenece al protocolo stdio
-    container = AppContainer.from_settings(settings, with_checkpointer=False, with_runner=False)
+    configure_logging(
+        settings.log_level, settings.log_json
+    )  # a stderr: stdout pertenece al protocolo stdio
+    container = AppContainer.from_settings(
+        settings, with_checkpointer=False, with_runner=False
+    )
     return container, os.getenv("MCP_TRANSPORT", settings.mcp_transport)
 
 
 def make_server(name: str, instructions: str) -> FastMCP:
     s = get_settings()
-    return FastMCP(name, instructions=instructions, host=s.mcp_host, port=int(os.getenv("MCP_PORT", s.mcp_port)))
+    return FastMCP(
+        name,
+        instructions=instructions,
+        host=s.mcp_host,
+        port=int(os.getenv("MCP_PORT", s.mcp_port)),
+    )
 
 
 def to_chunk_out(c: ScoredChunk) -> ChunkOut:
-    return ChunkOut(chunk_id=str(c.chunk_id), document_id=str(c.document_id), document_name=c.document_name, page_number=c.page_number,
-                    chunk_index=c.chunk_index, content=c.content, score=round(c.score, 5), source=c.source)
+    return ChunkOut(
+        chunk_id=str(c.chunk_id),
+        document_id=str(c.document_id),
+        document_name=c.document_name,
+        page_number=c.page_number,
+        chunk_index=c.chunk_index,
+        content=c.content,
+        score=round(c.score, 5),
+        source=c.source,
+    )
 
 
 def run(server: FastMCP, transport: str) -> None:
-    logging.getLogger(__name__).info("Iniciando servidor MCP %s (%s)", server.name, transport)
-    server.run(transport=transport)  # type: ignore[arg-type]
+    logging.getLogger(__name__).info(
+        "Iniciando servidor MCP %s (%s)", server.name, transport
+    )
+    server.run(transport=transport)  

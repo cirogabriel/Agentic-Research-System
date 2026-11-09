@@ -9,7 +9,14 @@ from ars.llm.budget import UsageTracker
 
 @pytest.fixture
 def settings() -> Settings:
-    return Settings(_env_file=None, openai_api_key="test-key", rerank_enabled=False, token_budget=100_000, max_iterations=3, max_subtasks=3)
+    return Settings(
+        _env_file=None,
+        openai_api_key="test-key",
+        rerank_enabled=False,
+        token_budget=100_000,
+        max_iterations=3,
+        max_subtasks=3,
+    )
 
 
 @pytest.fixture

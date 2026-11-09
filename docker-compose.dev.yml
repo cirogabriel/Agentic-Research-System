@@ -1,14 +1,11 @@
-# Solo el frontend en modo desarrollo (recarga en caliente) apuntando a un backend que ya corre en tu máquina (:8000).
-#   docker compose -f docker-compose.dev.yml up --build        → http://localhost:5173
-# El proxy de Vite reenvía /api al backend, así que no necesitas CORS.
 services:
   web-dev:
     build: { context: ., target: dev }
-    ports: ["5173:5173"]
+    ports: ['5173:5173']
     environment:
       VITE_API_BASE_URL: /api/v1
       DEV_PROXY_TARGET: http://host.docker.internal:8000
-    extra_hosts: ["host.docker.internal:host-gateway"]
+    extra_hosts: ['host.docker.internal:host-gateway']
     volumes:
       - ./src:/app/src
       - ./index.html:/app/index.html
